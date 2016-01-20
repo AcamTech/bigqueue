@@ -22,12 +22,12 @@ describe("Clusters administration for multicluster purposes",function(){
     var admClient;
     var mysqlConn = mysql.createConnection(mysqlConf);
 
-    
+
     var admConfig = {
         "logLevel":"error",
         "mysqlConf":mysqlConf
     }
-   
+
     before(function(done) {
         mysqlConn.connect(function(err) {
           done(err);
@@ -61,10 +61,10 @@ describe("Clusters administration for multicluster purposes",function(){
         function(d) {
           mysqlConn.query("TRUNCATE tasks",d);
         }
-      ], function(err) { 
-        done(err) 
+      ], function(err) {
+        done(err)
       });
-    });     
+    });
     beforeEach(function(done){
         admClient = bqadm.createClustersAdminClient(admConfig)
         admClient.on("ready",function(){
@@ -87,7 +87,7 @@ describe("Clusters administration for multicluster purposes",function(){
              should.not.exist(err);
              data.length.should.equal(1);
              data[0].name.should.equal("test1");
-             done(); 
+             done();
            });
          });
         });
@@ -329,7 +329,7 @@ describe("Clusters administration for multicluster purposes",function(){
   describe("Create topics and groups",function(){
       beforeEach(function(done){
         async.series([
-          function(cb) { 
+          function(cb) {
             admClient.createBigQueueCluster({
                   name:"test1",
                   nodes:[
@@ -350,7 +350,7 @@ describe("Clusters administration for multicluster purposes",function(){
           function(cb) {
             mysqlConn.query("UPDATE clusters SET `default`=? WHERE name=?",["Y","test1"], cb);
           }], done);
-      }); 
+      });
 
         it("should enable to create topics into the default clusters",function(done){
           admClient.createTopic({"name":"test","tenant_id":"1234","tenant_name":"456"},function(err){
@@ -531,7 +531,7 @@ describe("Clusters administration for multicluster purposes",function(){
             }
           ], done);
         });
-        
+
         it("should delete topic from specific clusters",function(done){
            admClient.deleteTopic("test-test-test",function(err){
               should.not.exist(err)
@@ -601,7 +601,7 @@ describe("Clusters administration for multicluster purposes",function(){
             }
           ], done);
         })
-  
+
         it("should delete consumer from specific cluster",function(done){
           admClient.deleteConsumerGroup("test-test-test","1-2-3",function(err){
             should.not.exist(err)
@@ -636,7 +636,7 @@ describe("Clusters administration for multicluster purposes",function(){
     });
 
     describe("Reset consumers", function() {
-    
+
       beforeEach(function(done){
            async.series([
             function(cb) {
@@ -775,9 +775,13 @@ describe("Clusters administration for multicluster purposes",function(){
               data.topic_id.should.equal("test-test-test")
               should.exist(data.ttl)
               data.endpoints[0].host.should.equal("127.0.0.1")
-              data.endpoints[0].port.should.equal(8080)
               data.endpoints[1].host.should.equal("127.0.0.1")
-              data.endpoints[1].port.should.equal(8081)
+              if(data.endpoints[0].port == 8080) {
+                data.endpoints[1].port.should.equal(8081)
+              } else {
+                data.endpoints[1].port.should.equal(8080)
+                data.endpoints[0].port.should.equal(8081)
+              }
               done()
           })
         })
@@ -796,7 +800,7 @@ describe("Clusters administration for multicluster purposes",function(){
             })
         })
     })
- 
+
     describe("Node Stats", function() {
      beforeEach(function(done){
         admClient.createBigQueueCluster({
@@ -828,29 +832,29 @@ describe("Clusters administration for multicluster purposes",function(){
         mysqlConn.query("TRUNCATE stats", function(err) {
           mysqlConn.commit(done);
         });
-      });     
+      });
       it("Should receive node stats", function(done) {
         var time = new Date();
         admClient.updateNodeMetrics("test","node1",{
                "sample_date" : 1401977686996,
-               "topics_stats" : 
-                [ 
-                  { 
-                   "consumers" : 
-                      [ 
-                        { 
+               "topics_stats" :
+                [
+                  {
+                   "consumers" :
+                      [
+                        {
                           "consumer_id" : "consumer1",
-                          "consumer_stats" : 
-                          { 
+                          "consumer_stats" :
+                          {
                             "fails" : 2,
                             "lag" : 10,
                             "processing" : 1
                           }
                         },
-                        { 
+                        {
                           "consumer_id" : "consumer2",
-                          "consumer_stats" : 
-                            { 
+                          "consumer_stats" :
+                            {
                               "fails" : 0,
                               "lag" : 1,
                               "processing" : 0
@@ -890,7 +894,7 @@ describe("Clusters administration for multicluster purposes",function(){
             data[0].lag.should.equal(10);
             data[0].fails.should.equal(2);
             data[0].processing.should.equal(1);
-            
+
             data[1].topic.should.equal("topic1");
             data[1].consumer.should.equal("consumer2");
             data[1].lag.should.equal(1);
@@ -902,13 +906,13 @@ describe("Clusters administration for multicluster purposes",function(){
             data[2].lag.should.equal(4);
             data[2].fails.should.equal(3);
             data[2].processing.should.equal(1);
-            
+
             done();
           });
         });
       });
       it("Should update value", function(done) {
-        var time = new Date(); 
+        var time = new Date();
         admClient.updateNodeMetrics("test","node1",{
             sample_date: time,
             topics_stats: [
@@ -923,7 +927,7 @@ describe("Clusters administration for multicluster purposes",function(){
                     fails:2,
                     processing:1
                    }
-                  } 
+                  }
                 ]
               }
             ]
@@ -942,10 +946,10 @@ describe("Clusters administration for multicluster purposes",function(){
                       fails:9,
                       processing:3
                      }
-                    } 
+                    }
                   ]
                 }
-              ]  
+              ]
             }, function(err) {
               should.not.exist(err);
               mysqlConn.query("SELECT * FROM stats", function(err, data) {
@@ -977,12 +981,12 @@ describe("Clusters administration for multicluster purposes",function(){
                     fails:9,
                     processing:3
                    }
-                  } 
+                  }
                 ]
               }
             ]
         }, function(err) {
-          should.exist(err); 
+          should.exist(err);
           done()
       });
     });
@@ -1001,7 +1005,7 @@ describe("Clusters administration for multicluster purposes",function(){
                     fails:2,
                     processing:1
                    }
-                  } 
+                  }
                 ]
               }
             ]
@@ -1020,7 +1024,7 @@ describe("Clusters administration for multicluster purposes",function(){
                     fails:3,
                     processing:4
                    }
-                  } 
+                  }
                 ]
               }
             ]
@@ -1035,7 +1039,7 @@ describe("Clusters administration for multicluster purposes",function(){
               data.consumers[0].consumer_stats.fails.should.equal(5);
               data.consumers[0].consumer_stats.processing.should.equal(5);
               done();
-            }); 
+            });
           });
        });
     });
@@ -1054,7 +1058,7 @@ describe("Clusters administration for multicluster purposes",function(){
                   fails:2,
                   processing:1
                  }
-                } 
+                }
               ]
             }
           ]
@@ -1073,7 +1077,7 @@ describe("Clusters administration for multicluster purposes",function(){
                     fails:3,
                     processing:4
                    }
-                  } 
+                  }
                 ]
               }
             ]
@@ -1086,7 +1090,7 @@ describe("Clusters administration for multicluster purposes",function(){
               data.consumer_stats.fails.should.equal(5);
               data.consumer_stats.processing.should.equal(5);
               done();
-            }); 
+            });
           });
        });
 
@@ -1099,7 +1103,7 @@ describe("Clusters administration for multicluster purposes",function(){
           admClient.createTasks([
             {data_node_id:"test1", task_type:"TEST", task_data:{test:1}},
             {data_node_id:"test2", task_type:"TEST", task_data:{test:2}}
-          ],cb)  
+          ],cb)
         },
         function(cb) {
           admClient.getTasksByCriteria({data_node_id: "test1"}, function(err, data) {
@@ -1130,7 +1134,7 @@ describe("Clusters administration for multicluster purposes",function(){
           admClient.createTasks([
             {data_node_id:"test1", task_type:"TEST", task_data:{test:1}},
             {data_node_id:"test2", task_type:"TEST", task_data:{test:2}}
-          ],cb)  
+          ],cb)
         },
         function(cb) {
           admClient.getTasksByCriteria({data_node_id: "test1"}, function(err, data) {
@@ -1140,7 +1144,7 @@ describe("Clusters administration for multicluster purposes",function(){
           });
         },
         function(cb) {
-          admClient.updateTaskStatus(id, "DONE", cb); 
+          admClient.updateTaskStatus(id, "DONE", cb);
         },
         function(cb) {
           admClient.getTasksByCriteria({task_id: id}, function(err, data) {
@@ -1153,4 +1157,3 @@ describe("Clusters administration for multicluster purposes",function(){
     });
   });
 });
-
