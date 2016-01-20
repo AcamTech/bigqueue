@@ -38,10 +38,10 @@ var loadApp = function(app){
     }
 
     function getTenantId(req) {
-      if(req.keystone && 
-         req.keystone.userData && 
-         req.keystone.userData.access && 
-         req.keystone.userData.access.token && 
+      if(req.keystone &&
+         req.keystone.userData &&
+         req.keystone.userData.access &&
+         req.keystone.userData.access.token &&
          req.keystone.userData.access.token.tenant) {
         return req.keystone.userData.access.token.tenant.id
     }
@@ -50,10 +50,10 @@ var loadApp = function(app){
 
     function getTenantName(req) {
 
-      if(req.keystone && 
-         req.keystone.userData && 
-         req.keystone.userData.access && 
-         req.keystone.userData.access.token && 
+      if(req.keystone &&
+         req.keystone.userData &&
+         req.keystone.userData.access &&
+         req.keystone.userData.access.token &&
          req.keystone.userData.access.token.tenant) {
         return req.keystone.userData.access.token.tenant.name
       }
@@ -84,7 +84,7 @@ var loadApp = function(app){
     })
 
     app.post(app.settings.basePath+"/clusters",function(req,res){
-        if(!req.is("json")){    
+        if(!req.is("json")){
             return res.writePretty({err:"Error parsing json"},400)
         }
         app.settings.bqAdm.createBigQueueCluster(req.body,function(err){
@@ -97,7 +97,7 @@ var loadApp = function(app){
     })
 
     app.post(app.settings.basePath+"/clusters/:cluster/nodes/:node/stats",function(req,res){
-        if(!req.is("json")){    
+        if(!req.is("json")){
             return res.writePretty({err:"Error parsing json"},400)
         }
         app.settings.bqAdm.updateNodeMetrics(req.params.cluster, req.params.node,req.body, function(err) {
@@ -109,7 +109,7 @@ var loadApp = function(app){
     });
 
     app.post(app.settings.basePath+"/clusters/:cluster/nodes",function(req,res){
-        if(!req.is("json")){    
+        if(!req.is("json")){
             return res.writePretty({err:"Error parsing json"},400)
         }
         app.settings.bqAdm.addNodeToCluster(req.params.cluster,req.body,function(err){
@@ -122,7 +122,7 @@ var loadApp = function(app){
     })
 
     app.post(app.settings.basePath+"/clusters/:cluster/journals",function(req,res){
-        if(!req.is("json")){    
+        if(!req.is("json")){
             return res.writePretty({err:"Error parsing json"},400)
         }
         app.settings.bqAdm.addJournalToCluster(req.params.cluster,req.body,function(err){
@@ -135,7 +135,7 @@ var loadApp = function(app){
     })
 
     app.post(app.settings.basePath+"/clusters/:cluster/endpoints",function(req,res){
-        if(!req.is("json")){    
+        if(!req.is("json")){
             return res.writePretty({err:"Error parsing json"},400)
         }
         app.settings.bqAdm.addEndpointToCluster(req.params.cluster,req.body,function(err){
@@ -149,7 +149,7 @@ var loadApp = function(app){
 
 
     app.put(app.settings.basePath+"/clusters/:cluster/nodes/:node",function(req,res){
-        if(!req.is("json")){    
+        if(!req.is("json")){
             return res.writePretty({err:"Error parsing json"},400)
         }
         var node = req.body
@@ -162,7 +162,7 @@ var loadApp = function(app){
             return res.writePretty({"cluster":req.body.name},200)
         })
     })
-    
+
     app.put(app.settings.basePath+"/clusters/:cluster/journals/:node",function(req,res){
         if(!req.is("json")){
             return res.writePretty({err:"Error parsing json"},400)
@@ -187,7 +187,7 @@ var loadApp = function(app){
             return res.writePretty(data,200)
         })
     })
-    
+
     app.get(app.settings.basePath+"/clusters/:cluster/journals/:journal",function(req,res){
         app.settings.bqAdm.getJournalData(req.params.cluster,req.params.journal,function(err,data){
             if(err){
@@ -213,7 +213,7 @@ var loadApp = function(app){
               var errMsg = err.msg || ""+err
               return res.writePretty({"err":errMsg},err.code || 500)
           }
-          if(cache) 
+          if(cache)
             cache.set(cacheKey, data);
           return res.writePretty(data,200)
       })
@@ -221,7 +221,7 @@ var loadApp = function(app){
 
     app.get(app.settings.basePath+"/topics",function(req,res){
         if(!req.query || Object.keys(req.query).length == 0) {
-          res.writePretty({err: "Criteria must be used for this resoruce (tenant_name, tenant_id as example)"}, 400);
+          req.query = undefined;
         }
         app.settings.bqAdm.listTopicsByCriteria(req.query,function(err,data){
            if(err){
@@ -237,7 +237,7 @@ var loadApp = function(app){
     })
 
     app.post(app.settings.basePath+"/topics",function(req,res){
-        if(!req.is("json")){    
+        if(!req.is("json")){
             return res.writePretty({err:"Error parsing json"},400)
         }
 
@@ -288,9 +288,9 @@ var loadApp = function(app){
             })
         })
     })
-    
+
     app.get(app.settings.basePath+"/topics/:topicId",function(req,res){
-        var topic = req.params.topicId; 
+        var topic = req.params.topicId;
           app.settings.bqAdm.getTopicData(topic,function(err,data){
               if(err){
                 var errMsg = err.msg || ""+err
@@ -305,7 +305,7 @@ var loadApp = function(app){
     })
 
     app.get(app.settings.basePath+"/topics/:topicId/consumers",function(req,res){
-        var topic = req.params.topicId;  
+        var topic = req.params.topicId;
           app.settings.bqAdm.getTopicData(topic,function(err,data){
              if(err){
                 var errMsg = err.msg || ""+err
@@ -315,7 +315,7 @@ var loadApp = function(app){
           });
     })
     app.post(app.settings.basePath+"/topics/:topicId/consumers",function(req,res){
-        if(!req.is("json")){    
+        if(!req.is("json")){
             return res.writePretty({err:"Error parsing json"},400)
         }
 
@@ -346,13 +346,13 @@ var loadApp = function(app){
     })
 
     app.delete(app.settings.basePath+"/topics/:topic_id/consumers/:consumer_id",function(req,res){
-        var criteria = getFilterCriteria(req); 
+        var criteria = getFilterCriteria(req);
         app.settings.bqAdm.getConsumerByCriteria(criteria,function(err,data){
             if(err){
                 var errMsg = err.msg || ""+err
                 return res.writePretty({"err":errMsg},err.code || 500)
             }
-        
+
             if(data.length != 1) {
                return res.writePretty({"err":"Consumer not found or you are not authorized to delete with this token"}, 404)
             }
@@ -369,13 +369,13 @@ var loadApp = function(app){
 
     //Reset on put
     app.put(app.settings.basePath+"/topics/:topic_id/consumers/:consumer_id",function(req,res){
-        var criteria = getFilterCriteria(req); 
+        var criteria = getFilterCriteria(req);
         app.settings.bqAdm.getConsumerByCriteria(criteria,function(err,data){
             if(err){
                 var errMsg = err.msg || ""+err
                 return res.writePretty({"err":errMsg},err.code || 500)
             }
-        
+
             if(data.length != 1) {
                return res.writePretty({"err":"Consumer not found or you are not authorized to delete with this token"}, 404)
             }
@@ -445,14 +445,14 @@ var loadApp = function(app){
     app.get("/ping", function(req, res) {
       res.send("pong",200);
     });
-} 
+}
 
 var authFilter = function(config){
 
     return function(req,res,next){
       //All post should be authenticated
-        if((req.method.toUpperCase() === "POST" || 
-            req.method.toUpperCase() === "PUT" || 
+        if((req.method.toUpperCase() === "POST" ||
+            req.method.toUpperCase() === "PUT" ||
               req.method.toUpperCase() === "DELETE") && !req.keystone.authorized){
             var excluded = false;
             if(config.authExclusions) {
@@ -502,12 +502,12 @@ exports.startup = function(config){
     }
     if(app.config && app.config.jsdog != undefined) {
       if(app.config.jsdog.enabled != undefined) {
-        jsdog.setEnable(app.config.jsdog.enabled);        
+        jsdog.setEnable(app.config.jsdog.enabled);
       }
-    }    
+    }
     app.use(writeFilter())
     app.enable("jsonp callback")
-        
+
     app.use(bodyParser({limit: '50mb'}));
 
     if(config.keystoneConfig){

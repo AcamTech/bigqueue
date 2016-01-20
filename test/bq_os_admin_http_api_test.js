@@ -12,8 +12,8 @@ var should = require('should'),
     async = require("async");
 
 describe("openstack admin http api",function(){
-   
-     var fake_sock; 
+
+     var fake_sock;
      var mysqlConf = {
         host     : 'localhost',
         user     : 'root',
@@ -22,9 +22,9 @@ describe("openstack admin http api",function(){
         connectionLimit: 10,
         waitForConnections: false
     };
-   
+
     var mysqlConn = mysql.createConnection(mysqlConf);
-    
+
 
     var admConfig = {
         "logLevel":"error",
@@ -32,7 +32,7 @@ describe("openstack admin http api",function(){
         "defaultCluster":"test",
         "mysqlConf":mysqlConf
     }
-    
+
     var httpConfig = {
         "admConfig":admConfig,
         "port":8081,
@@ -101,14 +101,14 @@ describe("openstack admin http api",function(){
         function(d) {
           mysqlConn.query("TRUNCATE node_journals",d);
         }
-      ], function(err) { 
-        done(err) 
+      ], function(err) {
+        done(err)
       });
-    });  
+    });
     describe("Cluster Admin",function(){
         it("should enable to create new clusters",function(done){
         async.series([
-          function(cb) {    
+          function(cb) {
             request({
                 url:"http://127.0.0.1:8081/clusters",
                 method:"GET",
@@ -164,7 +164,7 @@ describe("openstack admin http api",function(){
 
         it("should support add nodes",function(done){
           async.series( [
-            function(cb) {  
+            function(cb) {
             request({
                 url:"http://127.0.0.1:8081/clusters",
                 method:"POST",
@@ -191,7 +191,7 @@ describe("openstack admin http api",function(){
                         method:"POST",
                 json:{"id":"test1","host":"127.0.0.1","port":6379,"status":"DOWN","journals":[]}
                     },function(err,response,body){
-                
+
                         response.statusCode.should.equal(201)
                 cb();
               })
@@ -438,11 +438,11 @@ describe("openstack admin http api",function(){
         it("should support cluster deletes")
 
     })
-    
+
     describe("Topics and consumers",function(){
         beforeEach(function(done){
           async.series([
-            function(cb) {  
+            function(cb) {
             request({
                 url:"http://127.0.0.1:8081/clusters",
                 method:"POST",
@@ -618,6 +618,44 @@ describe("openstack admin http api",function(){
             })
           }], done);
         })
+
+        it("should support list all topics",function(done){
+          async.series([
+            function(cb) {
+            request({
+                url:"http://127.0.0.1:8081/topics",
+                method:"POST",
+                  json:{"tenant_id":"1234", "tenant_name":"test","name":"test"}
+            },function(error,response,body){
+                  response.statusCode.should.equal(201);
+                  cb();
+              })
+            },
+            function(cb) {
+                     request({
+                        url:"http://127.0.0.1:8081/topics",
+                        method:"POST",
+                  json:{"tenant_id":"12345", "tenant_name":"test","name":"test2"}
+                    },function(error,response,body){
+                  response.statusCode.should.equal(201);
+                  cb();
+              })
+            },
+            function(cb) {
+                        request({
+                  url:"http://127.0.0.1:8081/topics",
+                            method:"GET",
+                            json:true
+                        },function(error,response,body){
+                            response.statusCode.should.equal(200)
+                            body.should.have.length(2)
+                  body.should.include("1234-test-test")
+                  body.should.include("12345-test-test2")
+                  cb()
+                    })
+            }], done);
+        })
+
         it("should support list all topics of a tenantId",function(done){
           async.series([
             function(cb) {
@@ -631,7 +669,7 @@ describe("openstack admin http api",function(){
               })
             },
             function(cb) {
-    
+
                 request({
                     url:"http://127.0.0.1:8081/topics?tenant_id=1234",
                     method:"GET",
@@ -721,7 +759,7 @@ describe("openstack admin http api",function(){
             });
           }], done);
         })
-        
+
         it("should get all information about a topic",function(done){
             request({
                 url:"http://127.0.0.1:8081/topics",
@@ -773,7 +811,7 @@ describe("openstack admin http api",function(){
                 })
             })
         })
-        
+
         it("should support list all consumer of a topic",function(done){
             request({
                 url:"http://127.0.0.1:8081/topics",
@@ -862,7 +900,7 @@ describe("openstack admin http api",function(){
                             response.statusCode.should.equal(200)
                             body.should.have.length(0)
                             done()
-                        }) 
+                        })
                     })
                 })
             })
@@ -899,9 +937,9 @@ describe("openstack admin http api",function(){
                             },function(error,response,body){
                                 body.consumers.length.should.equal(0)
                                 done()
-                            }) 
+                            })
                         })
-                    }) 
+                    })
                 })
             })
         })
@@ -915,7 +953,7 @@ describe("openstack admin http api",function(){
             },function(error,response,body){
                 response.statusCode.should.equal(201);
                 cb();
-              }); 
+              });
             },
             function(cb) {
                 request({
@@ -925,7 +963,7 @@ describe("openstack admin http api",function(){
                 },function(error,response,body){
                 response.statusCode.should.equal(201);
                 cb();
-              }); 
+              });
             },
             function(cb) {
                     request({
@@ -1006,16 +1044,16 @@ describe("openstack admin http api",function(){
                             "token":{
                                 "tenant":
                                      {
-                                         "id": "1", 
+                                         "id": "1",
                                          "name": "1234"
                                      }
-                                
+
                             },
                             "user":{
                                 "roles": [
                                     {
-                                        "id": "3", 
-                                        "name": "Admin", 
+                                        "id": "3",
+                                        "name": "Admin",
                                         "tenantId": "1"
                                     }
                                 ]
@@ -1030,15 +1068,15 @@ describe("openstack admin http api",function(){
                             "token":{
                                 "tenant":
                                      {
-                                         "id": "3", 
+                                         "id": "3",
                                          "name": "345"
                                      }
-                                
+
                             },
                             "user":{
                             }
                         }
-                
+
                     })
                 }
 
@@ -1048,10 +1086,10 @@ describe("openstack admin http api",function(){
                             "token":{
                                 "tenant":
                                      {
-                                         "id": "2", 
+                                         "id": "2",
                                          "name": "someone"
                                      }
-                                
+
                             },
                             "user":{}
                         }
@@ -1069,11 +1107,11 @@ describe("openstack admin http api",function(){
                 fake_sock.close()
             }
         })
-        
+
         beforeEach(function(){
             api.shutdown()
             var intConf = httpConfig
-            intConf["keystoneConfig"] = keystoneConfig 
+            intConf["keystoneConfig"] = keystoneConfig
             api = httpApi.startup(intConf)
         })
 
@@ -1276,7 +1314,7 @@ describe("openstack admin http api",function(){
             },
             function(cb) {
            request({
-                  url:"http://127.0.0.1:8081/topics/1-1234-test", 
+                  url:"http://127.0.0.1:8081/topics/1-1234-test",
                   method: "DELETE"
             },function(error,response,body){
                 response.statusCode.should.equal(401);
@@ -1285,7 +1323,7 @@ describe("openstack admin http api",function(){
             },
             function(cb) {
                request({
-                  url:"http://127.0.0.1:8081/topics/1-1234-test", 
+                  url:"http://127.0.0.1:8081/topics/1-1234-test",
                   method: "DELETE",
                     headers:{"X-Auth-Token":"someone"}
                 },function(error,response,body){
@@ -1295,7 +1333,7 @@ describe("openstack admin http api",function(){
             },
             function(cb) {
                     request({
-                  url:"http://127.0.0.1:8081/topics/1-1234-test", 
+                  url:"http://127.0.0.1:8081/topics/1-1234-test",
                   method: "DELETE",
                         headers:{"X-Auth-Token":"user345"}
                     },function(error,response,body){
@@ -1305,7 +1343,7 @@ describe("openstack admin http api",function(){
             },
             function(cb) {
                         request({
-                  url:"http://127.0.0.1:8081/topics/1-1234-test", 
+                  url:"http://127.0.0.1:8081/topics/1-1234-test",
                   method: "DELETE",
                             headers:{"X-Auth-Token":"user123"}
                         },function(error,response,body){
@@ -1365,7 +1403,7 @@ describe("openstack admin http api",function(){
             },
             function(cb) {
                     request({
-                  url:"http://127.0.0.1:8081/topics/1-1234-test/consumers/3-345-test_consumer", 
+                  url:"http://127.0.0.1:8081/topics/1-1234-test/consumers/3-345-test_consumer",
                         method:"DELETE",
                     },function(error,response,body){
                 response.statusCode.should.equal(401);
@@ -1374,7 +1412,7 @@ describe("openstack admin http api",function(){
             },
             function(cb) {
                         request({
-                  url:"http://127.0.0.1:8081/topics/1-1234-test/consumers/3-345-test_consumer", 
+                  url:"http://127.0.0.1:8081/topics/1-1234-test/consumers/3-345-test_consumer",
                             method:"DELETE",
                             headers:{"X-Auth-Token":"someone"}
                         },function(error,response,body){
@@ -1384,7 +1422,7 @@ describe("openstack admin http api",function(){
             },
             function(cb) {
                             request({
-                  url:"http://127.0.0.1:8081/topics/1-1234-test/consumers/3-345-test_consumer", 
+                  url:"http://127.0.0.1:8081/topics/1-1234-test/consumers/3-345-test_consumer",
                                 method:"DELETE",
                   headers:{"X-Auth-Token":"user345"}
                             },function(error,response,body){
@@ -1458,7 +1496,7 @@ describe("openstack admin http api",function(){
               cb();
             });
           }
-        ], done); 
+        ], done);
       });
       it("Should enable update tasks", function(done) {
         async.series([
@@ -1497,32 +1535,32 @@ describe("openstack admin http api",function(){
         mysqlConn.query("TRUNCATE stats", function(err) {
           mysqlConn.commit(done);
         });
-      });     
+      });
       it("Should receive node stats", function(done) {
           var time = new Date();
           request({
             url:"http://127.0.0.1:8081/clusters/test/nodes/node1/stats",
             method: "POST",
-            json: { 
+            json: {
                "sample_date" : 1401977686996,
-               "topics_stats" : 
-                [ 
-                  { 
-                   "consumers" : 
-                      [ 
-                        { 
+               "topics_stats" :
+                [
+                  {
+                   "consumers" :
+                      [
+                        {
                           "consumer_id" : "testConsumer2",
-                          "consumer_stats" : 
-                          { 
+                          "consumer_stats" :
+                          {
                             "fails" : 0,
                             "lag" : 1,
                             "processing" : 0
                           }
                         },
-                        { 
+                        {
                           "consumer_id" : "testConsumer",
-                          "consumer_stats" : 
-                            { 
+                          "consumer_stats" :
+                            {
                               "fails" : 2,
                               "lag" : 10,
                               "processing" : 1
@@ -1534,7 +1572,7 @@ describe("openstack admin http api",function(){
                 }
               ]
             }
-          }, function(error, response, body) { 
+          }, function(error, response, body) {
             should.not.exist(error);
             response.statusCode.should.equal(200);
             mysqlConn.query("SELECT * FROM stats", function(err, data) {
