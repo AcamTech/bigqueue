@@ -19,7 +19,7 @@ describe("Big Queue Cluster",function(){
         "createNodeClientFunction":bq.createClient,
     }
 
- 
+
     var bqClient
     var redisClient1
     var redisClient2
@@ -54,7 +54,7 @@ describe("Big Queue Cluster",function(){
       })
       .persist();
     });
-   
+
     before(function(done){
         var execute = function() {
           var args = [];
@@ -78,7 +78,7 @@ describe("Big Queue Cluster",function(){
             redisClient2.on("ready", cb);
           }
         ],done);
-    }); 
+    });
 
     before(function(done){
       async.parallel([
@@ -100,7 +100,7 @@ describe("Big Queue Cluster",function(){
         }
       ],done);
     });
-    
+
     beforeEach(function(done){
       async.series([
         function(cb) {
@@ -109,15 +109,15 @@ describe("Big Queue Cluster",function(){
         function(cb) {
           redisClient2.execute("flushall", cb);
         }
-      ], done);  
+      ], done);
     })
-  
+
     beforeEach(function(done) {
       bqClient = bqc.createClusterClient(bqClientConfig);
       bqClient.on("ready",function() {
         setTimeout(done, 30);
       });
-    }); 
+    });
     afterEach(function(done){
         bqClient.shutdown()
         process.nextTick(function(){
@@ -126,9 +126,9 @@ describe("Big Queue Cluster",function(){
     })
 
     after(function() {
-     nock.cleanAll(); 
-    }); 
-    //End of prepare stage 
+     nock.cleanAll();
+    });
+    //End of prepare stage
     describe("#internals",function(){
       it("Should not create client if node is down", function(done) {
         async.series([
@@ -178,7 +178,7 @@ describe("Big Queue Cluster",function(){
         async.series([
           function(cb) {
             clusterData.nodes[3] = {id:"node3","host":"127.0.0.1","port":6379,"status":"UP","journals":["j1"]};
-            setTimeout(cb, 20);
+            setTimeout(cb, 200);
           },
           function(cb) {
             var node = bqClient.getClientById(bqClient.nodes,"node3")
@@ -281,9 +281,9 @@ describe("Big Queue Cluster",function(){
               });
             });
           }
-        ], done);  
+        ], done);
       });
-      
+
       it("should write to all journals declared for the node",function(done){
        async.series([
           function(cb) {
@@ -308,14 +308,14 @@ describe("Big Queue Cluster",function(){
              cb();
            });
           }
-        ], done);  
+        ], done);
       })
      it("should return an error if an error ocurrs writing data to the journal",function(done){
        async.series([
         function(cb) {
           clusterData.journals.push({id:"j3","host":"127.0.0.1","port":6381,"status":"UP"});
-          clusterData.nodes[0].journals = ["j1","j2","j3"]; 
-          clusterData.nodes[1].journals = ["j1","j2","j3"]; 
+          clusterData.nodes[0].journals = ["j1","j2","j3"];
+          clusterData.nodes[1].journals = ["j1","j2","j3"];
           setTimeout(cb, 20);
         },
         function(cb) {
@@ -353,7 +353,7 @@ describe("Big Queue Cluster",function(){
            cb();
          });
         }
-       ],done);   
+       ],done);
      })
      it("should ignore read_only status",function(done){
       async.series([
@@ -381,8 +381,8 @@ describe("Big Queue Cluster",function(){
              cb();
            });
           }
-         ],done);   
-       }); 
+         ],done);
+       });
     })
     describe("#getMessage",function(){
         beforeEach(function(done){
@@ -576,7 +576,7 @@ describe("Big Queue Cluster",function(){
             bqClient.getMessage("testTopic","testGroup",undefined,function(err,data){
               should.not.exist(err)
               should.not.exist(data)
-              cb(); 
+              cb();
             });
 
            }
@@ -626,7 +626,7 @@ describe("Big Queue Cluster",function(){
              });
            }
           ],done);
-        }); 
+        });
 
         it("should get the uid generated at post instance",function(done){
           var uids = [];
@@ -648,7 +648,7 @@ describe("Big Queue Cluster",function(){
                 should.not.exist(err)
                 should.exist(data)
                 uids.should.include(data.uid);
-                cb();    
+                cb();
               })
             },
             function(cb) {
@@ -656,12 +656,12 @@ describe("Big Queue Cluster",function(){
                 should.not.exist(err)
                 should.exist(data)
                 uids.should.include(data.uid);
-                cb();    
+                cb();
               })
             }
           ], done);
         })
-        
+
         it("should return undefined if no message found",function(done){
           async.series([
             function(cb) {
@@ -677,7 +677,7 @@ describe("Big Queue Cluster",function(){
                 cb();
               });
             }
-          ], done);  
+          ], done);
         });
         it("should return undefined if error found",function(done){
             bqClient.getMessage("testTopic","testGroup",undefined,function(err,data){
@@ -700,7 +700,7 @@ describe("Big Queue Cluster",function(){
                 cb();
               });
             }
-          ], done);  
+          ], done);
         })
 
         it("should ignore down status",function(done){
@@ -728,7 +728,7 @@ describe("Big Queue Cluster",function(){
             bqClient.getMessage("testTopic","testGroup",undefined,function(err,data){
               should.not.exist(err)
               should.not.exist(data)
-              cb(); 
+              cb();
             });
            }
           ], done);
@@ -882,7 +882,7 @@ describe("Big Queue Cluster",function(){
               data.should.have.lengthOf(0);
               cb();
             });
-          }, 
+          },
           function(cb) {
             bqClient.failMessage("testTopic","testGroup",recipientCallback,cb);
           },
@@ -922,7 +922,7 @@ describe("Big Queue Cluster",function(){
               clusterData.nodes[1].status ="DOWN";
             }
             setTimeout(cb, 20);
-          }, 
+          },
           function(cb) {
             bqClient.failMessage("testTopic","testGroup",recipientCallback,function(err) {
               should.exist(err);
@@ -932,7 +932,7 @@ describe("Big Queue Cluster",function(){
         ],done);
       });
    })
- 
+
  describe("background",function(){
     beforeEach(function(done){
         async.series([
@@ -952,8 +952,8 @@ describe("Big Queue Cluster",function(){
       });
 
      it("should collect stats in file",function(done){
-         bqClient.shutdown() 
-    
+         bqClient.shutdown()
+
           var bqClientConfig = {
             "refreshInterval":10,
             "cluster": "test",
@@ -989,7 +989,7 @@ describe("Big Queue Cluster",function(){
             },
             function(cb) {
               setTimeout(cb, 210);
-            }, 
+            },
             function(cb) {
               var dirs = fs.readdirSync("/tmp")
               dirs.lastIndexOf("bigqueueStats.log").should.not.equal(-1)
