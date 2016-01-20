@@ -13,8 +13,7 @@ var loadApp = function(app){
     app.get("/ping",function(req,res){
       app.settings.bqClient.healthcheck(function(err) {
         if(err) {
-          res.sendStatus(500);
-          res.json(err);  
+          res.json(500, err);
         }else{
           res.end("pong");
         }
@@ -56,7 +55,7 @@ var loadApp = function(app){
                 executed++
                 if(executed == topics.length){
                     if(errors.length>0){
-                        return res.json(500, {err:"An error ocurrs posting the messages","errors":errors}) 
+                        return res.json(500, {err:"An error ocurrs posting the messages","errors":errors})
                     }else{
                         return res.json(201, datas)
                     }
@@ -168,7 +167,7 @@ exports.startup = function(config){
         jsdog.setEnable(config.jsdog.enable);
       }
     }
-    
+
 
     loadApp(app)
 
