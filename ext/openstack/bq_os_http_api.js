@@ -4,7 +4,7 @@ var express = require('express'),
     morgan = require("morgan"),
     methodOverride = require("method-override"),
     jsdog = require("jsdog-meli").configure();
-var maxBody = "64kb"
+var maxBody = "10kb"
 var bqClient
 
 var valid_element_regex=/^(\w|[0-9]){2,50}$/
