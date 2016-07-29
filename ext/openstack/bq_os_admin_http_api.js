@@ -261,7 +261,7 @@ var loadApp = function(app){
         app.settings.bqAdm.createTopic(topic_data, function(err, topicData){
             if(err){
               var errMsg = err.msg || ""+err
-              return res.writePretty({"err":errMsg},err.code || 500)
+              return res.writePretty({"err":errMsg}, 500)
             }else{
               return res.writePretty(topicData,201)
             }
