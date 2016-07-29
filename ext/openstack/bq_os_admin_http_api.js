@@ -226,7 +226,7 @@ var loadApp = function(app){
         app.settings.bqAdm.listTopicsByCriteria(req.query,function(err,data){
            if(err){
                 var errMsg = err.msg || ""+err
-                return res.writePretty({"err":errMsg},err.code || 500)
+                return res.writePretty({"err":errMsg}, 500)
            }
            var topics = [];
            data.forEach(function(e) {
