@@ -17,8 +17,8 @@ CREATE TABLE `consumers` (
   `tenant_id` varchar(255) DEFAULT NULL,
   `tenant_name` varchar(255) DEFAULT NULL,
   `consumer_name` varchar(255) DEFAULT NULL,
-  `cluster` varchar(50) DEFAULT NULL,
-  `topic_id` varchar(255) DEFAULT NULL,
+  `cluster` varchar(50) NOT NULL,
+  `topic_id` varchar(255) NOT NULL,
   `create_time` datetime,
   PRIMARY KEY (`consumer_id`, `cluster`, `topic_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

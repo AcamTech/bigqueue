@@ -90,7 +90,11 @@ var loadApp = function(app){
         app.settings.bqAdm.createBigQueueCluster(req.body,function(err){
             if(err){
                 var errMsg = err.msg || ""+err
-                return res.writePretty({"err":errMsg},err.code || 500)
+                if(!err.code || err.code < 400) {
+                  err.code=500
+                }
+                console.log(err)
+                return res.writePretty({"err":errMsg}, err.code )
             }
             return res.writePretty({"cluster":req.body.name},201)
         })

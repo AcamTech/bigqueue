@@ -19,8 +19,8 @@ describe("openstack admin http api",function(){
         user     : 'root',
         password : '',
         database : 'bigqueue',
-        connectionLimit: 10,
-        waitForConnections: false
+        connectionLimit: 5,
+        waitForConnections: true
     };
 
     var mysqlConn = mysql.createConnection(mysqlConf);
