@@ -32,7 +32,8 @@
     "request": "2.9.x",
     "should": "0.6.x",
     "winston": "0.7.3",
-    "shuffle-array":"0.0.2"
+    "shuffle-array":"0.0.2",
+    "jsdog": "git@github.com:mercadolibre/jsdog.git"
   },
   "devDependencies": {
     "mocha": "1.8.x",
