@@ -6,7 +6,12 @@ var express = require('express'),
     NodeCache = require("node-cache"),
     morgan = require("morgan"),
     YAML = require('json2yaml'),
-    jsdog = require("jsdog-meli").configure();
+    jsdog = require("jsdog-meli").configure({
+                                            "statsd_server": process.env['DATADOG_PORT_8125_UDP_ADDR'],
+                                            "statsd_port": 8125
+                                             "fury_dumper":true
+                                           });
+
 
 var loadApp = function(app){
     var authorizeTenant = function(userData,tenantId){
