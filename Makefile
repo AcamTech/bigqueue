@@ -35,7 +35,7 @@ prepare_development:
 run_development:
 	if test "$(shell redis-cli ping)" = "PONG"; then (redis-cli shutdown); fi;
 	redis-server &
-	./bin/http_launcher.js
-	
+	node ./bin/http_launcher.js
+
 
 .PHONY: test
