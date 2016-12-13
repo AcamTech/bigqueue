@@ -1575,15 +1575,17 @@ describe("openstack admin http api",function(){
           }, function(error, response, body) {
             should.not.exist(error);
             response.statusCode.should.equal(200);
-            mysqlConn.query("SELECT * FROM stats", function(err, data) {
-              data[0].cluster.should.equal("test");
-              data[0].topic.should.equal("testTopic");
-              data[0].consumer.should.equal("testConsumer");
-              data[0].lag.should.equal(10);
-              data[0].fails.should.equal(2);
-              data[0].processing.should.equal(1);
-              done();
-            });
+            setTimeout(function(){
+              mysqlConn.query("SELECT * FROM stats", function(err, data) {
+                data[0].cluster.should.equal("test");
+                data[0].topic.should.equal("testTopic");
+                data[0].consumer.should.equal("testConsumer");
+                data[0].lag.should.equal(10);
+                data[0].fails.should.equal(2);
+                data[0].processing.should.equal(1);
+                done();
+              });
+            }, 200);
         });
       });
     });

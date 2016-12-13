@@ -78,7 +78,6 @@ describe("Clusters administration for multicluster purposes",function(){
           done()
         })
     })
-
     describe("Create clusters",function(){
         it("should create a cluster",function(done){
           admClient.createBigQueueCluster({name:"test1"},function(err){
@@ -881,34 +880,36 @@ describe("Clusters administration for multicluster purposes",function(){
               ]
         }, function(err) {
           should.not.exist(err);
-          mysqlConn.query("SELECT * FROM stats", function(err, data) {
-            data[0].cluster.should.equal("test");
-            data[0].node.should.equal("node1");
-            data[1].cluster.should.equal("test");
-            data[1].cluster.should.equal("test");
-            data[2].node.should.equal("node1");
-            data[2].node.should.equal("node1");
+          setTimeout(function(){
+            mysqlConn.query("SELECT * FROM stats", function(err, data) {
+              data[0].cluster.should.equal("test");
+              data[0].node.should.equal("node1");
+              data[1].cluster.should.equal("test");
+              data[1].cluster.should.equal("test");
+              data[2].node.should.equal("node1");
+              data[2].node.should.equal("node1");
 
-            data[0].topic.should.equal("topic1");
-            data[0].consumer.should.equal("consumer1");
-            data[0].lag.should.equal(10);
-            data[0].fails.should.equal(2);
-            data[0].processing.should.equal(1);
+              data[0].topic.should.equal("topic1");
+              data[0].consumer.should.equal("consumer1");
+              data[0].lag.should.equal(10);
+              data[0].fails.should.equal(2);
+              data[0].processing.should.equal(1);
 
-            data[1].topic.should.equal("topic1");
-            data[1].consumer.should.equal("consumer2");
-            data[1].lag.should.equal(1);
-            data[1].fails.should.equal(0);
-            data[1].processing.should.equal(0);
+              data[1].topic.should.equal("topic1");
+              data[1].consumer.should.equal("consumer2");
+              data[1].lag.should.equal(1);
+              data[1].fails.should.equal(0);
+              data[1].processing.should.equal(0);
 
-            data[2].topic.should.equal("topic2");
-            data[2].consumer.should.equal("consumer3");
-            data[2].lag.should.equal(4);
-            data[2].fails.should.equal(3);
-            data[2].processing.should.equal(1);
+              data[2].topic.should.equal("topic2");
+              data[2].consumer.should.equal("consumer3");
+              data[2].lag.should.equal(4);
+              data[2].fails.should.equal(3);
+              data[2].processing.should.equal(1);
 
-            done();
-          });
+              done();
+            });
+          }, 200);
         });
       });
       it("Should update value", function(done) {
@@ -952,17 +953,18 @@ describe("Clusters administration for multicluster purposes",function(){
               ]
             }, function(err) {
               should.not.exist(err);
-              mysqlConn.query("SELECT * FROM stats", function(err, data) {
-
-                data[0].cluster.should.equal("test");
-                data[0].node.should.equal("node1");
-                data[0].topic.should.equal("topic1");
-                data[0].consumer.should.equal("consumer1");
-                data[0].lag.should.equal(1);
-                data[0].fails.should.equal(9);
-                data[0].processing.should.equal(3);
-                done();
-              });
+              setTimeout(function() {
+                mysqlConn.query("SELECT * FROM stats", function(err, data) {
+                  data[0].cluster.should.equal("test");
+                  data[0].node.should.equal("node1");
+                  data[0].topic.should.equal("topic1");
+                  data[0].consumer.should.equal("consumer1");
+                  data[0].lag.should.equal(1);
+                  data[0].fails.should.equal(9);
+                  data[0].processing.should.equal(3);
+                  done();
+                });
+              },200);
             });
           });
       });
@@ -1030,16 +1032,18 @@ describe("Clusters administration for multicluster purposes",function(){
             ]
           }, function(err) {
             should.not.exist(err);
-            admClient.getTopicData("test-test-t1", function(err, data) {
-              should.not.exist(err);
-              should.exist(data);
-              data.consumers.length.should.equal(1);
-              data.consumers[0].consumer_id.should.equal("test-test-c1");
-              data.consumers[0].consumer_stats.lag.should.equal(12);
-              data.consumers[0].consumer_stats.fails.should.equal(5);
-              data.consumers[0].consumer_stats.processing.should.equal(5);
-              done();
-            });
+            setTimeout(function(){
+              admClient.getTopicData("test-test-t1", function(err, data) {
+                should.not.exist(err);
+                should.exist(data);
+                data.consumers.length.should.equal(1);
+                data.consumers[0].consumer_id.should.equal("test-test-c1");
+                data.consumers[0].consumer_stats.lag.should.equal(12);
+                data.consumers[0].consumer_stats.fails.should.equal(5);
+                data.consumers[0].consumer_stats.processing.should.equal(5);
+                done();
+              });
+            },200);
           });
        });
     });
@@ -1083,14 +1087,16 @@ describe("Clusters administration for multicluster purposes",function(){
             ]
           }, function(err) {
             should.not.exist(err);
-            admClient.getConsumerData("test-test-t1", "test-test-c1", function(err, data) {
-              should.not.exist(err);
-              should.exist(data);
-              data.consumer_stats.lag.should.equal(12);
-              data.consumer_stats.fails.should.equal(5);
-              data.consumer_stats.processing.should.equal(5);
-              done();
-            });
+            setTimeout(function(){
+              admClient.getConsumerData("test-test-t1", "test-test-c1", function(err, data) {
+                should.not.exist(err);
+                should.exist(data);
+                data.consumer_stats.lag.should.equal(12);
+                data.consumer_stats.fails.should.equal(5);
+                data.consumer_stats.processing.should.equal(5);
+                done();
+              });
+            },200);
           });
        });
 
