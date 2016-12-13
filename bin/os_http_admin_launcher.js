@@ -5,6 +5,10 @@
  * If no config found a default config will be used, this confing
  * will use a redis localhost running at default port
  */
+
+try {
+  require("newrelic")
+} catch(e) {}
 var adm_api = require("../ext/openstack/bq_os_admin_http_api.js");
 var log = require("../lib/bq_logger.js");
 var cluster = require('cluster');

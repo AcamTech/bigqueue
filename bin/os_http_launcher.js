@@ -5,6 +5,11 @@
  * If no config found a default config will be used, this confing
  * will use a redis localhost running at default port
  */
+try {
+  require("newrelic")
+} catch(e) {
+  console.log(e)
+}
 var bq = require('../lib/bq_client.js'),
     bqc = require('../lib/bq_cluster_client.js'),
     http_api = require("../ext/openstack/bq_os_http_api.js"),
@@ -26,13 +31,13 @@ var redisLocalhost = {
 //Default api conf
 var httpApiConfig = {
     "port": 8081,
-    "bqConfig": redisLocalhost, 
+    "bqConfig": redisLocalhost,
     "bqClientCreateFunction": bq.createClient,
     "logLevel":"info"
 }
 
 //Check for external config
-var config 
+var config
 if(externalConfig){
     config = require(externalConfig).httpApiConfig
 }else{
@@ -61,5 +66,3 @@ if (cluster.isMaster) {
   // Worker processes have a http server.
     http_api.startup(config)
 }
-
-

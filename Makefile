@@ -19,8 +19,8 @@ NODE_VERSION="v0.6.19"
 NODE_VERSION_LOCAL=$(shell /usr/local/node/bin/node --version)
 
 test:
-	echo "$$REDIS1_CONF" | /usr/local/bin/redis-server -
-	echo "$$REDIS2_CONF" | /usr/local/bin/redis-server -
+	echo "$$REDIS1_CONF" | redis-server -
+	echo "$$REDIS2_CONF" | redis-server -
 
 	./node_modules/.bin/_mocha --globals myThis,myHolder,myCallee,State_myThis,chunk --reporter spec -t 10000 ${REGEX} ${TESTFILE}
 
@@ -35,7 +35,7 @@ prepare_development:
 run_development:
 	if test "$(shell redis-cli ping)" = "PONG"; then (redis-cli shutdown); fi;
 	redis-server &
-	./bin/http_launcher.js
-	
+	node ./bin/http_launcher.js
+
 
 .PHONY: test
