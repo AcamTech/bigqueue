@@ -171,3 +171,4 @@ DROP TRIGGER IF EXISTS consumers_update;
 CREATE TRIGGER consumers_update AFTER UPDATE ON consumers
 FOR EACH ROW INSERT INTO consumers_history (consumer_id, tenant_id, tenant_name, consumer_name, cluster, topic_id, create_time, modify_date, modify_action)
 VALUES (OLD.consumer_id, OLD.tenant_id, OLD.tenant_name, OLD.consumer_name, OLD.cluster, OLD.topic_id, OLD.create_time, now(), "UPDATE");
+
