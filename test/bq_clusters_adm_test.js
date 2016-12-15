@@ -909,7 +909,7 @@ describe("Clusters administration for multicluster purposes",function(){
 
               done();
             });
-          }, 200);
+          }, 400);
         });
       });
       it("Should update value", function(done) {
