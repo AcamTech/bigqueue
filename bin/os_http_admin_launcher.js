@@ -57,7 +57,7 @@ if (cluster.isMaster) {
   cluster.on('exit',function(worker, code, signal) {
     console.log("worker "+worker.process.pid+" died --> Creating new fork");
     cluster.fork();
-  }
+  });
 } else {
   adm_api.startup(config)
 }
