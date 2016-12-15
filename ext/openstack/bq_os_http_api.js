@@ -13,7 +13,7 @@ var loadApp = function(app){
     app.get("/ping",function(req,res){
       app.settings.bqClient.healthcheck(function(err) {
         if(err) {
-          res.json(500, err);
+          res.status(500).json( err);
         }else{
           res.end("pong");
         }
@@ -22,11 +22,11 @@ var loadApp = function(app){
 
     app.post(app.settings.basePath+"/messages",function(req,res){
         if(!req.is("json")){
-            return res.json(400, {err:"Message should be json"})
+            return res.status(400).json( {err:"Message should be json"})
         }
         var topics = req.body.topics
         if(!(topics instanceof Array)){
-            return res.json(400, {err:"should be declared the 'topics' property"})
+            return res.status(400).json( {err:"should be declared the 'topics' property"})
         }
         delete req.body["topics"]
         var message
@@ -38,7 +38,7 @@ var loadApp = function(app){
                 }
             })
         }catch(e){
-            return res.json(400, {err:"Error parsing json ["+e+"]"})
+            return res.status(400).json( {err:"Error parsing json ["+e+"]"})
         }
 
         var errors = []
@@ -55,9 +55,9 @@ var loadApp = function(app){
                 executed++
                 if(executed == topics.length){
                     if(errors.length>0){
-                        return res.json(500, {err:"An error ocurrs posting the messages","errors":errors})
+                        return res.status(500).json( {err:"An error ocurrs posting the messages","errors":errors})
                     }else{
-                        return res.json(201, datas)
+                        return res.status(201).json( datas)
                     }
                 }
             })
@@ -73,22 +73,22 @@ var loadApp = function(app){
         if(nodeId) {
           var splitedNode = nodeId.split("@");
           if(splitedNode.length != 2) {
-            return res.json(400, {"err": "Invalid X-NodeId header"});
+            return res.status(400).json( {"err": "Invalid X-NodeId header"});
           }
           nodeId = splitedNode[0];
           try {
             nodeCallCount = parseInt(splitedNode[1]);
           }catch(e) {
-            return res.json(400, {"err": "Invalid X-NodeId header"});
+            return res.status(400).json( {"err": "Invalid X-NodeId header"});
           }
         }
 
         function onMessage(err,data){
             if(err){
                 if(typeof(err) == "string")
-                    res.json(400, {"err":""+err})
+                    res.status(400).json( {"err":""+err})
                 else
-                    res.json(400, err)
+                    res.status(400).json( err)
             }else{
                 if(data && data.id){
                     Object.keys(data).forEach(function(val){
@@ -111,9 +111,9 @@ var loadApp = function(app){
                       res.setHeader("X-Remaining",remaining);
                       res.setHeader("X-NodeId",nodeId+"@"+nodeCallCount);
                     }
-                    res.json(200, data)
+                    res.status(200).json( data)
                 }else{
-                    res.json(204, {})
+                    res.status(204).json( {})
                 }
             }
         }
@@ -126,7 +126,7 @@ var loadApp = function(app){
           }
         }catch(e){
             log.log("error", "Error getting message [%s]",e)
-            res.json(500, {err:"Error processing request ["+e+"]"})
+            res.status(500).json( {err:"Error processing request ["+e+"]"})
         }
     })
 
@@ -137,14 +137,14 @@ var loadApp = function(app){
             app.settings.bqClient.ackMessage(topic,consumer,req.params.recipientCallback,function(err){
                 if(err){
                     var errMsg = err.msg || ""+err
-                    res.json(200, {err:errMsg})
+                    res.status(200).json( {err:errMsg})
                 }else{
-                    res.json(204, {})
+                    res.status(204).json( {})
                 }
             })
         }catch(e){
             log.log("error", "Error deleting message [%s]",e)
-            res.json(500, {err:"Error processing request ["+e+"]"})
+            res.status(500).json( {err:"Error processing request ["+e+"]"})
         }
 
     })

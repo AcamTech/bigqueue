@@ -1039,7 +1039,7 @@ describe("openstack admin http api",function(){
             fakekeystone = express()
             fakekeystone.get("/v2.0/tokens/:token",function(req,res){
                 if(req.params.token === "user123" && req.headers["x-auth-token"] === "admin"){
-                    return res.json(200,{
+                    return res.status(200).json({
                         "access": {
                             "token":{
                                 "tenant":
@@ -1063,7 +1063,7 @@ describe("openstack admin http api",function(){
                     })
                 }
                 if(req.params.token === "user345" && req.headers["x-auth-token"] === "admin"){
-                    return res.json(200, {
+                    return res.status(200).json({
                         "access": {
                             "token":{
                                 "tenant":
@@ -1081,7 +1081,7 @@ describe("openstack admin http api",function(){
                 }
 
                 if(req.params.token === "someone" && req.headers["x-auth-token"] === "admin"){
-                    return res.json(200, {
+                    return res.status(200).json({
                         "access": {
                             "token":{
                                 "tenant":
@@ -1097,7 +1097,7 @@ describe("openstack admin http api",function(){
                     })
                 }
 
-                return res.json(404,{err:"token not found"})
+                return res.status(404).json({err:"token not found"})
             })
             fake_sock = fakekeystone.listen(35357)
         })
