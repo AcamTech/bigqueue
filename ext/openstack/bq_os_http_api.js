@@ -15,7 +15,7 @@ var loadApp = function(app){
         if(err) {
           res.status(500).json( err);
         }else{
-          res.end("pong");
+          res.status(200).send("pong");
         }
       });
     })

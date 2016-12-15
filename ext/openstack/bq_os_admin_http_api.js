@@ -447,7 +447,7 @@ var loadApp = function(app){
     //PING
 
     app.get("/ping", function(req, res) {
-      res.send("pong",200);
+      res.status(200).send("pong");
     });
 }
 
@@ -512,7 +512,7 @@ exports.startup = function(config){
     app.use(writeFilter())
     app.enable("jsonp callback")
 
-    app.use(bodyParser.json());
+    app.use(bodyParser.json({"limit":"100mb"}));
 
     if(config.keystoneConfig){
         app.use(keystoneMiddlware.auth(config.keystoneConfig))

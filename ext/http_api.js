@@ -10,7 +10,7 @@ var valid_element_regex=/^(\w|[0-9]){2,50}$/
 
 var loadApp = function(app){
     app.get("/ping",function(req,res){
-      res.end("pong")
+      res.status(200).send("pong")
     })
 
     app.get("/topics",function(req,res){
