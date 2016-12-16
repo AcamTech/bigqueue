@@ -1585,7 +1585,7 @@ describe("openstack admin http api",function(){
                 data[0].processing.should.equal(1);
                 done();
               });
-            }, 200);
+            },500);
         });
       });
     });
