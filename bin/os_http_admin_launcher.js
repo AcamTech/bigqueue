@@ -54,6 +54,10 @@ if (cluster.isMaster) {
   for (var i = 0; i < numCPUs; i++) {
     cluster.fork();
   }
+  cluster.on('exit',function(worker, code, signal) {
+    console.log("worker "+worker.process.pid+" died --> Creating new fork");
+    cluster.fork();
+  });
 } else {
   adm_api.startup(config)
 }

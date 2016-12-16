@@ -1039,7 +1039,7 @@ describe("openstack admin http api",function(){
             fakekeystone = express()
             fakekeystone.get("/v2.0/tokens/:token",function(req,res){
                 if(req.params.token === "user123" && req.headers["x-auth-token"] === "admin"){
-                    return res.json(200,{
+                    return res.status(200).json({
                         "access": {
                             "token":{
                                 "tenant":
@@ -1063,7 +1063,7 @@ describe("openstack admin http api",function(){
                     })
                 }
                 if(req.params.token === "user345" && req.headers["x-auth-token"] === "admin"){
-                    return res.json(200, {
+                    return res.status(200).json({
                         "access": {
                             "token":{
                                 "tenant":
@@ -1081,7 +1081,7 @@ describe("openstack admin http api",function(){
                 }
 
                 if(req.params.token === "someone" && req.headers["x-auth-token"] === "admin"){
-                    return res.json(200, {
+                    return res.status(200).json({
                         "access": {
                             "token":{
                                 "tenant":
@@ -1097,7 +1097,7 @@ describe("openstack admin http api",function(){
                     })
                 }
 
-                return res.json(404,{err:"token not found"})
+                return res.status(404).json({err:"token not found"})
             })
             fake_sock = fakekeystone.listen(35357)
         })
@@ -1575,15 +1575,17 @@ describe("openstack admin http api",function(){
           }, function(error, response, body) {
             should.not.exist(error);
             response.statusCode.should.equal(200);
-            mysqlConn.query("SELECT * FROM stats", function(err, data) {
-              data[0].cluster.should.equal("test");
-              data[0].topic.should.equal("testTopic");
-              data[0].consumer.should.equal("testConsumer");
-              data[0].lag.should.equal(10);
-              data[0].fails.should.equal(2);
-              data[0].processing.should.equal(1);
-              done();
-            });
+            setTimeout(function(){
+              mysqlConn.query("SELECT * FROM stats", function(err, data) {
+                data[0].cluster.should.equal("test");
+                data[0].topic.should.equal("testTopic");
+                data[0].consumer.should.equal("testConsumer");
+                data[0].lag.should.equal(10);
+                data[0].fails.should.equal(2);
+                data[0].processing.should.equal(1);
+                done();
+              });
+            },500);
         });
       });
     });

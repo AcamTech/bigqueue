@@ -302,7 +302,7 @@ describe("Tasks Node Job", function() {
           cb();
         },
         function(cb) {
-          setTimeout(cb, 50);
+          setTimeout(cb, 200);
         },
         function(cb) {
           mock.ops.length.should.equal(2);
@@ -316,7 +316,7 @@ describe("Tasks Node Job", function() {
           cb();
         },
         function(cb) {
-          setTimeout(cb, 50);
+          setTimeout(cb, 200);
         },
         function(cb) {
           mock.ops.length.should.equal(4);

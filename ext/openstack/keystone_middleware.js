@@ -1,7 +1,7 @@
 var  request = require('request')
 
 module.exports.auth= function(config){
-    
+
     var keystoneAdminUrl = config.keystoneUrl
     var adminToken = config.adminToken
     var forceAuth = config.forceAuth || false
@@ -20,28 +20,27 @@ module.exports.auth= function(config){
                 "json":true
             },function(error,response,body){
                 if(error || response.statusCode >= 500){
-                    return res.json({err:"Error checking token with keyston","desc":body},500)
+                    return res.status(500).json({err:"Error checking token with keyston","desc":body})
                 }
                 if(response.statusCode == 200){
                     req["keystone"]["authorized"] = true
                     req["keystone"]["userData"] = body
                 }else{
                     if(forceAuth)
-                        return res.json({"err":body},401)
+                        return res.status(401).json({"err":body})
                     else
                         req["keystone"]["authorized"] = false
 
                 }
                 next()
-            }) 
+            })
 
         }else{
-            //If no token and 
+            //If no token and
             if(forceAuth){
-                return res.json({"err":"X-Auth-Token header is required"},401)
+                return res.status(401).json({"err":"X-Auth-Token header is required"})
             }
             next()
         }
     }
 }
-

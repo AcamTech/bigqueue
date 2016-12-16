@@ -452,7 +452,7 @@ var loadApp = function(app){
     //PING
 
     app.get("/ping", function(req, res) {
-      res.send("pong",200);
+      res.status(200).send("pong");
     });
 }
 
@@ -486,12 +486,12 @@ var writeFilter = function(){
         res.writePretty = function(obj,statusCode){
           statusCode = statusCode || 200;
             if(req.accepts("json")){
-                res.json(statusCode,obj)
+                res.status(statusCode).json(obj)
             }else if(req.accepts("text/plain")){
                 res.send(statusCode, YAML.stringify(obj))
             }else{
                 //Default
-                res.json(statusCode,obj);
+                res.status(statusCode).json(obj);
             }
         }
         next()
@@ -517,7 +517,7 @@ exports.startup = function(config){
     app.use(writeFilter())
     app.enable("jsonp callback")
 
-    app.use(bodyParser({limit: '50mb'}));
+    app.use(bodyParser.json({"limit":"100mb"}));
 
     if(config.keystoneConfig){
         app.use(keystoneMiddlware.auth(config.keystoneConfig))
