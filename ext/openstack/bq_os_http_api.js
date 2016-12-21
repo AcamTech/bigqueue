@@ -11,7 +11,7 @@ var express = require('express'),
 
 
 
-var maxBody = "64kb"
+var maxBody = "128kb"
 var bqClient
 
 var valid_element_regex=/^(\w|[0-9]){2,50}$/
@@ -45,6 +45,7 @@ var loadApp = function(app){
                 }
             })
         }catch(e){
+          log.error("Error creating topic [%j]", e)
             return res.status(400).json( {err:"Error parsing json ["+e+"]"})
         }
 
