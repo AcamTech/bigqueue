@@ -12,7 +12,7 @@ describe("Open stack http api",function(){
 
     var httpApiConf = {
         "port": 8082,
-        "bqConfig": redisConf, 
+        "bqConfig": redisConf,
         "bqClientCreateFunction": bq.createClient,
         "logLevel":"critical",
         "singleNodeMaxReCall":2
@@ -90,7 +90,7 @@ describe("Open stack http api",function(){
             request({
                 url:"http://127.0.0.1:8082/messages",
                 method:"POST",
-                body:"foo" 
+                body:"foo"
             },function(error,response,body){
                 response.statusCode.should.equal(400)
                 done()
@@ -137,7 +137,7 @@ describe("Open stack http api",function(){
                         body.should.have.property("msg")
                         body.id.should.equal(""+postId2)
                         body.msg.should.equal("testMessage")
-                        done() 
+                        done()
                     })
                 })
             })
@@ -172,7 +172,7 @@ describe("Open stack http api",function(){
                     response.statusCode.should.equal(200)
                     should.not.exist(response.headers["x-remaining"]);
                     should.not.exist(response.headers["x-nodeid"]);
-                    done(); 
+                    done();
                  });
                });
             });
@@ -206,7 +206,7 @@ describe("Open stack http api",function(){
              });
           });
         });
-        
+
         it("Should not reponse node id if max call reached", function(done) {
           request({
               url:"http://127.0.0.1:8082/messages",
@@ -319,7 +319,7 @@ describe("Open stack http api",function(){
                     body.should.have.property("id")
                     body.should.have.property("msg")
                     body.id.should.equal(""+postId)
-                    body.msg.should.have.property("test") 
+                    body.msg.should.have.property("test")
                     body.msg.test.should.equal("message")
                     done()
                 })
@@ -403,7 +403,7 @@ describe("Open stack http api",function(){
                         body.should.have.property("msg")
                         body.id.should.equal(""+postId)
                         body.msg.should.equal("testMessage")
-                        done() 
+                        done()
                     })
                 })
             })
@@ -542,8 +542,8 @@ describe("Open stack http api",function(){
 
     describe("Limits",function(){
         it("should get an error if a posted message have more than 64kb",function(done){
-            var msg_json = {"msg":""}  
-            for(var i=0;i<(64*1024)+10;i++) {
+            var msg_json = {"msg":""}
+            for(var i=0;i<(129*1024)+10;i++) {
               msg_json.msg=msg_json.msg+"a"
             }
             request({
