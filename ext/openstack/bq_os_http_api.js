@@ -45,7 +45,7 @@ var loadApp = function(app){
                 }
             })
         }catch(e){
-            log.log("error","Error parsing json", e)
+            log.log("error","[ERROR-POSTING] Error parsing json", e)
             return res.status(400).json( {err:"Error parsing json ["+e+"]"})
         }
 
@@ -63,7 +63,7 @@ var loadApp = function(app){
                 executed++
                 if(executed == topics.length){
                     if(errors.length>0){
-                        log.log("error","Error posting "+ JSON.stringify(errors))
+                        log.log("error","[ERROR-POSTING] Error posting "+ JSON.stringify(errors))
                         return res.status(500).json( {err:"An error ocurrs posting the messages","errors":errors})
                     }else{
                         return res.status(201).json( datas)
