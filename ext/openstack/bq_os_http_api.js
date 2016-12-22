@@ -182,11 +182,6 @@ exports.startup = function(config){
     app.set("bqClient",config.bqClientCreateFunction(config.bqConfig));
     app.set("basePath",config.basePath || "");
     app.set("singleNodeMaxReCall", config.singleNodeMaxReCall || 100);
-    if(config && config.jsdog != undefined) {
-      if(config.jsdog.enable != undefined) {
-        jsdog.setEnable(config.jsdog.enable);
-      }
-    }
 
 
     loadApp(app)
