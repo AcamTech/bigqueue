@@ -3,6 +3,7 @@ var express = require('express'),
     bodyParser = require("body-parser"),
     morgan = require("morgan"),
     methodOverride = require("method-override"),
+    StatsD = require('hot-shots'),
     statsDClient = new StatsD({
                                 "host": process.env['DATADOG_PORT_8125_UDP_ADDR'],
                                 globalTags:[
