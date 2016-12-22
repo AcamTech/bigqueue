@@ -168,8 +168,8 @@ exports.startup = function(config){
 
     //It's to lead with the media-typer library Error in Pull request https://github.com/jshttp/media-typer/compare/master...geisbruch:master
     app.use(function(req, res, next) {
-      if(req["content-type"] && req["content-type"].indexOf("application/json")) {
-        req["content-type"]='application/json'
+      if(req.headers["content-type"] && req.headers["content-type"].indexOf("application/json") != -1) {
+        req.headers["content-type"]='application/json'
       }
       next();
     })
