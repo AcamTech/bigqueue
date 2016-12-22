@@ -3,13 +3,14 @@ var express = require('express'),
     bodyParser = require("body-parser"),
     morgan = require("morgan"),
     methodOverride = require("method-override"),
-    jsdog = require("jsdog-meli").configure({
-                                            "statsd_server": process.env['DATADOG_PORT_8125_UDP_ADDR'],
-                                            "statsd_port": 8125,
-                                             "fury_dumper":true,
-					     "dump_interval":500
-                                           });
-
+    statsDClient = new StatsD({
+                                "host": process.env['DATADOG_PORT_8125_UDP_ADDR'],
+                                globalTags:[
+                                  "app:"+process.env["APP"],
+                                  "scope:"+process.env["SCOPE"],
+                                  "region:"+process.env["REGION"]
+                                ]
+                              });
 
 
 var maxBody = "128kb"
