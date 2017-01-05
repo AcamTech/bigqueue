@@ -45,6 +45,9 @@ var loadApp = function(app){
         var datas = []
         var executed = 0
         for(var i in topics){
+            if (topics[i] != "cbead41f2a5849b5a5be64df0f3521d2-orders-orders") {
+                return res.status(400).json( {err:"traffic blocked by arquitectura"})
+            }
             app.settings.bqClient.postMessage(topics[i],message,function(err,data){
                if(err){
                     errors.push(err.msg)
