@@ -55,9 +55,13 @@ var loadApp = function(app){
         var errors = []
         var datas = []
         var executed = 0
+        var limitRate = false;
+        var topicDisabled = false;
         for(var i in topics){
             app.settings.bqClient.postMessage(topics[i],message,function(err,data){
                if(err){
+                    limitRate = limitRate || err.limit_rate;
+                    topicDisabled = topicDisabled || err.topic_disabled;
                     errors.push(err.msg)
                 }
                 if(data){
@@ -66,8 +70,15 @@ var loadApp = function(app){
                 executed++
                 if(executed == topics.length){
                     if(errors.length>0){
-                        log.log("error","[ERROR-POSTING] Error posting "+ JSON.stringify(errors))
-                        return res.status(500).json( {err:"An error ocurrs posting the messages","errors":errors})
+                        log.log("error","[ERROR-POSTING] Error posx ting "+ JSON.stringify(errors))
+                        var code = 500;
+                        if(topicDisabled) {
+                          code = 412;
+                        }
+                        if(limitRate) {
+                          code = 429;
+                        }
+                        return res.status(code).json( {err:"An error ocurrs posting the messages","errors":errors})
                     }else{
                         return res.status(201).json( datas)
                     }
@@ -100,7 +111,7 @@ var loadApp = function(app){
                 if(typeof(err) == "string")
                     res.status(400).json( {"err":""+err})
                 else
-                    res.status(400).json( err)
+                    res.status(400).json(err)
             }else{
                 if(data && data.id){
                     Object.keys(data).forEach(function(val){

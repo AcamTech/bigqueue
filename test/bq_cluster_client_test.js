@@ -17,6 +17,7 @@ describe("Big Queue Cluster",function(){
         "adminApiUrl":"http://adminapi.bigqueue.com",
         "createJournalClientFunction":bj.createJournalClient,
         "createNodeClientFunction":bq.createClient,
+        "topicStructRefreshInterval": 10
     }
 
 
@@ -28,6 +29,7 @@ describe("Big Queue Cluster",function(){
     var journalClient1
     var journalClient2
     var clusterData;
+    var topicsStruct;
     beforeEach(function() {
       clusterData = {
         name:"test1",
@@ -44,6 +46,27 @@ describe("Big Queue Cluster",function(){
               {name:"e2","host":"127.0.0.1","port":8081}
           ]
       }
+      topicsStruct = {
+        topics:[
+          {
+            topic_id: "123-a-b",
+            enabled: true,
+            max_new_messages_per_seccond:-1,
+            consumers: [{
+              consumer_id: "456-c-d",
+              enabled: true
+            }]
+          },{
+            topic_id: "JJJ-a-b",
+            enabled: true,
+            max_new_messages_per_seccond: -1,
+            consumers: [{
+              consumer_id: "JJJ-c-d",
+              enabled: true
+            }]
+          }
+        ]
+      }
     });
     before(function() {
       nock("http://adminapi.bigqueue.com")
@@ -51,6 +74,13 @@ describe("Big Queue Cluster",function(){
       .get("/clusters/test")
       .reply(200, function(req, b) {
         return clusterData;
+      })
+      .persist();
+      nock("http://adminapi.bigqueue.com")
+      .defaultReplyHeaders({"Content-Type":"application/json"})
+      .get("/clusters/test/topics")
+      .reply(200, function(req, b) {
+        return topicsStruct;
       })
       .persist();
     });
@@ -215,7 +245,13 @@ describe("Big Queue Cluster",function(){
             nodeClient1.createTopic("testTopic",cb);
           },
           function(cb) {
+            nodeClient1.createTopic("123-a-b",cb);
+          },
+          function(cb) {
             nodeClient2.createTopic("testTopic",cb);
+          },
+          function(cb) {
+            nodeClient2.createTopic("123-a-b",cb);
           }
         ], done);
 
@@ -253,6 +289,88 @@ describe("Big Queue Cluster",function(){
           }
         ], done);
       });
+
+      it("should reject process if topic is disabled (enabled:false)", function(done) {
+        async.series([
+          function(cb) {
+
+            bqClient.postMessage("123-a-b",{msg:"test1"},function(err) {
+              should.not.exist(err);
+              cb();
+            });
+          },function(cb) {
+            topicsStruct.topics[0].enabled=false;
+            topicsStruct.topics[1].enabled=false;
+            setTimeout(cb, 100);
+          }, function(cb) {
+            bqClient.postMessage("123-a-b",{msg:"test1"},function(err) {
+              should.exist(err);
+              cb();
+            });
+          }
+        ],function(cb) {
+          done()
+        })
+      })
+      it("should reject process if topic is hitting max amount of posts", function(done) {
+        async.series([
+          function(cb) {
+            bqClient.postMessage("123-a-b",{msg:"test1"},function(err) {
+              should.not.exist(err);
+              cb();
+            });
+          },function(cb) {
+            bqClient.postMessage("123-a-b",{msg:"test1"},function(err) {
+              should.not.exist(err);
+              cb();
+            });
+          },function(cb) {
+            bqClient.postMessage("123-a-b",{msg:"test1"},function(err) {
+              should.not.exist(err);
+              cb();
+            });
+          },function(cb) {
+            topicsStruct.topics[0].max_new_messages_per_seccond=2;
+            topicsStruct.topics[1].max_new_messages_per_seccond=2;
+            //Clear stats
+            setTimeout(cb, 1500);
+          },function(cb) {
+              bqClient.postMessage("123-a-b",{msg:"test1"},function(err) {
+                should.not.exist(err);
+                cb();
+              });
+            },function(cb) {
+              bqClient.postMessage("123-a-b",{msg:"test1"},function(err) {
+                should.not.exist(err);
+                cb();
+              });
+            },function(cb) {
+              bqClient.postMessage("123-a-b",{msg:"test1"},function(err) {
+                should.exist(err);
+                cb();
+              });
+            },function(cb) {
+              bqClient.postMessage("123-a-b",{msg:"test1"},function(err) {
+                should.exist(err);
+                cb();
+              });
+            },function(cb) {
+              setTimeout(cb, 1500)
+            },function(cb) {
+                bqClient.postMessage("123-a-b",{msg:"test1"},function(err) {
+                  should.not.exist(err);
+                  cb();
+                });
+              },function(cb) {
+                bqClient.postMessage("123-a-b",{msg:"test1"},function(err) {
+                  should.not.exist(err);
+                  cb();
+                });
+              }
+        ],function(cb) {
+          done()
+        })
+      })
 
       it("should try to resend the message to another node if an error ocurrs sending",function(done){
         async.series([
