@@ -18,6 +18,7 @@ CREATE TABLE `consumers` (
   `tenant_name` varchar(255) DEFAULT NULL,
   `consumer_name` varchar(255) DEFAULT NULL,
   `cluster` varchar(50) NOT NULL,
+  `enabled` int(1) DEFAULT 1,
   `topic_id` varchar(255) NOT NULL,
   `create_time` datetime,
   PRIMARY KEY (`consumer_id`, `cluster`, `topic_id`)
@@ -122,6 +123,8 @@ CREATE TABLE `topics` (
   `topic_name` varchar(255) DEFAULT NULL,
   `cluster` varchar(50) DEFAULT NULL,
   `ttl` int(11) DEFAULT NULL,
+  `enabled` int(1) DEFAULT 1,
+  `max_new_messages_per_seccond` int(11) DEFAULT -1,
   `create_time` datetime,
   PRIMARY KEY (`topic_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

@@ -207,6 +207,16 @@ var loadApp = function(app){
         })
     })
 
+    app.get(app.settings.basePath+"/clusters/:cluster/topics",function(req,res){
+      app.settings.bqAdm.getClusterStruct(req.params.cluster,function(err, data) {
+        if(err){
+            var errMsg = err.msg || ""+err
+            return res.writePretty({"err":errMsg}, 500)
+        }
+        return res.writePretty({"topics":data},200)
+      })
+    });
+
     app.get(app.settings.basePath+"/clusters/:cluster",function(req,res){
       var cacheKey = "cluster_data-"+req.params.cluster;
       var cache = app.settings.cache;

@@ -832,6 +832,17 @@ describe("Clusters administration for multicluster purposes",function(){
           mysqlConn.commit(done);
         });
       });
+      it("Should enable get cluster struct", function(done) {
+        admClient.getClusterStruct("test1", function(err, data) {
+          data.length.should.equal(1);
+          data[0].topic_id.should.equal("test-test-t1");
+          data[0].enabled.should.equal(true);
+          data[0].consumers.length.should.equal(1);
+          data[0].consumers[0].consumer_id.should.equal("test-test-c1")
+          data[0].consumers[0].enabled.should.equal(true)
+          done();
+        });
+      });
       it("Should receive node stats", function(done) {
         var time = new Date();
         admClient.updateNodeMetrics("test","node1",{
