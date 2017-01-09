@@ -20,6 +20,7 @@ CREATE TABLE `consumers` (
   `cluster` varchar(50) NOT NULL,
   `enabled` int(1) DEFAULT 1,
   `topic_id` varchar(255) NOT NULL,
+  `max_get_messages_per_seccond` int(11) DEFAULT -1,
   `create_time` datetime,
   PRIMARY KEY (`consumer_id`, `cluster`, `topic_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

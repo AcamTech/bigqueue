@@ -54,6 +54,7 @@ describe("Big Queue Cluster",function(){
             max_new_messages_per_seccond:-1,
             consumers: [{
               consumer_id: "456-c-d",
+              max_get_messages_per_seccond: -1,
               enabled: true
             }]
           },{
@@ -62,7 +63,17 @@ describe("Big Queue Cluster",function(){
             max_new_messages_per_seccond: -1,
             consumers: [{
               consumer_id: "JJJ-c-d",
+              max_get_messages_per_seccond: -1,
               enabled: true
+            }]
+          },{
+            topic_id:"testTopic",
+            enabled: true,
+            max_new_messages_per_seccond: -1,
+            consumers:[{
+                consumer_id:"testGroup",
+                max_get_messages_per_seccond: -1,
+                enabled: true
             }]
           }
         ]
@@ -293,7 +304,6 @@ describe("Big Queue Cluster",function(){
       it("should reject process if topic is disabled (enabled:false)", function(done) {
         async.series([
           function(cb) {
-
             bqClient.postMessage("123-a-b",{msg:"test1"},function(err) {
               should.not.exist(err);
               cb();
@@ -519,6 +529,97 @@ describe("Big Queue Cluster",function(){
             }
           ], done);
 
+        });
+
+        it("should resturn error if consumer is not enabled", function(done) {
+          async.series([
+            function(cb) {
+              bqClient.postMessage("testTopic",{msg:"testMessage"},cb);
+            },
+            function(cb) {
+              bqClient.postMessage("testTopic",{msg:"testMessage"},cb);
+            },
+            function(cb) {
+              bqClient.postMessage("testTopic",{msg:"testMessage"},cb);
+            },
+            function(cb) {
+              bqClient.getMessage("testTopic","testGroup",undefined,function(err,data){
+                should.not.exist(err)
+                cb();
+              });
+            },
+            function(cb) {
+              topicsStruct.topics[2].consumers[0].enabled = false;
+              setTimeout(cb, 100);
+            },
+            function(cb) {
+              bqClient.getMessage("testTopic","testGroup",undefined,function(err,data){
+                should.exist(err)
+                cb();
+              });
+            }
+          ], done);
+        });
+
+        it("should resturn error if consumer get limmit is exceeded", function(done) {
+          async.series([
+            function(cb) {
+              bqClient.postMessage("testTopic",{msg:"testMessage"},cb);
+            },
+            function(cb) {
+              bqClient.postMessage("testTopic",{msg:"testMessage"},cb);
+            },
+            function(cb) {
+              bqClient.postMessage("testTopic",{msg:"testMessage"},cb);
+            },
+            function(cb) {
+              bqClient.postMessage("testTopic",{msg:"testMessage"},cb);
+            },
+            function(cb) {
+              bqClient.postMessage("testTopic",{msg:"testMessage"},cb);
+            },
+            function(cb) {
+              bqClient.postMessage("testTopic",{msg:"testMessage"},cb);
+            },
+            function(cb) {
+              bqClient.getMessage("testTopic","testGroup",undefined,function(err,data){
+                should.not.exist(err)
+                cb();
+              });
+            },
+            function(cb) {
+              bqClient.getMessage("testTopic","testGroup",undefined,function(err,data){
+                should.not.exist(err)
+                cb();
+              });
+            },
+            function(cb) {
+              topicsStruct.topics[2].consumers[0].max_get_messages_per_seccond = 1;
+              setTimeout(cb, 1500);
+            },
+            function(cb) {
+              bqClient.getMessage("testTopic","testGroup",undefined,function(err,data){
+
+                should.not.exist(err)
+                cb();
+              });
+            },
+            function(cb) {
+              bqClient.getMessage("testTopic","testGroup",undefined,function(err,data){
+                should.exist(err)
+                cb();
+              });
+            },
+            function(cb) {
+              setTimeout(cb, 1500);
+            },
+            function(cb) {
+              bqClient.getMessage("testTopic","testGroup",undefined,function(err,data){
+                should.not.exist(err)
+                cb();
+              });
+            }
+          ], done);
         });
 
         it("should generate and add a recipientCallback to the returned message",function(done){

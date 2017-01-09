@@ -108,10 +108,18 @@ var loadApp = function(app){
 
         function onMessage(err,data){
             if(err){
-                if(typeof(err) == "string")
-                    res.status(400).json( {"err":""+err})
-                else
-                    res.status(400).json(err)
+                var code = 400;
+                if(err.consumer_disabled) {
+                  code = 412;
+                }
+                if(err.limit_rate) {
+                  code = 429;
+                }
+                if(typeof(err) == "string") {
+                    res.status(code).json( {"err":""+err})
+                } else {
+                    res.status(code).json(err)
+                }
             }else{
                 if(data && data.id){
                     Object.keys(data).forEach(function(val){
