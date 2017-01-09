@@ -415,7 +415,13 @@ var loadApp = function(app){
         app.settings.bqAdm.getConsumerData(topic,consumer,function(err,data){
             if(err){
               var errMsg = err.msg || ""+err
-              return res.writePretty({"err":errMsg},err.code || 500)
+              var code = 500;
+              if(err.code) {
+                code = err.code;
+              }else if (err.not_found) {
+                code = 404;
+              }
+              return res.writePretty({"err":errMsg},code)
             }
             return res.writePretty(data,200)
         })
