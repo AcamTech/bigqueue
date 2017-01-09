@@ -1,5 +1,6 @@
 var express = require('express'),
     log = require('../../lib/bq_logger.js'),
+    pulsar = require('../../lib/pulsar.js'),
     bodyParser = require("body-parser"),
     morgan = require("morgan"),
     methodOverride = require("method-override"),
@@ -34,6 +35,7 @@ var loadApp = function(app){
         if(!req.is("json")){
             return res.status(400).json( {err:"Message should be json"})
         }
+        var msgCopy = JSON.parse(JSON.stringify(req.body));
         var topics = req.body.topics
         if(!(topics instanceof Array)){
             return res.status(400).json( {err:"should be declared the 'topics' property"})
@@ -85,6 +87,7 @@ var loadApp = function(app){
                 }
             })
         }
+        pulsar.publish(app.settings.cluster, msgCopy);
     })
 
     app.get(app.settings.basePath+"/topics/:topic/consumers/:consumer/messages",function(req,res){
@@ -198,6 +201,7 @@ exports.startup = function(config){
     app.use(bodyParser.json({limit: maxBody}))
     app.use(methodOverride());
 
+    app.set("cluster", config.bqConfig.cluster);
     app.set("bqClient",config.bqClientCreateFunction(config.bqConfig));
     app.set("basePath",config.basePath || "");
     app.set("singleNodeMaxReCall", config.singleNodeMaxReCall || 100);
