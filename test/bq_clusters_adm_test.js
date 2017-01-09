@@ -975,7 +975,7 @@ describe("Clusters administration for multicluster purposes",function(){
                   data[0].processing.should.equal(3);
                   done();
                 });
-              },200);
+              },500);
             });
           });
       });
