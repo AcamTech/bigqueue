@@ -14,7 +14,6 @@ var express = require('express'),
                                 ]
                               });
 
-
 var maxBody = "128kb"
 var bqClient
 
@@ -87,7 +86,17 @@ var loadApp = function(app){
                 }
             })
         }
-        pulsar.publish(app.settings.cluster, msgCopy);
+        var start = new Date()
+        pulsar.publish(app.settings.cluster, msgCopy, function(err) {
+          try {
+            if (err) {
+              statsDClient.increment("application.bigqueue.pulsar.publish.error",1, ["cluster:"+app.settings.cluster]);
+            }
+            statsDClient.gauge("application.bigqueue.pulsar.publish.time", (new Date() - start), ["cluster:"+app.settings.cluster, "error:"+(!!err)]);
+          } catch (e) {
+            log.log("error", "Error recording metrics", e);
+          }
+        });
     })
 
     app.get(app.settings.basePath+"/topics/:topic/consumers/:consumer/messages",function(req,res){
