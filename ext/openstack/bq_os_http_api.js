@@ -5,6 +5,7 @@ var express = require('express'),
     morgan = require("morgan"),
     methodOverride = require("method-override"),
     StatsD = require('hot-shots'),
+    async = require("async");
     statsDClient = new StatsD({
                                 "host": process.env['DATADOG_PORT_8125_UDP_ADDR'],
                                 globalTags:[
@@ -54,47 +55,50 @@ var loadApp = function(app){
         }
 
         var errors = []
-        var datas = []
         var executed = 0
         var limitRate = false;
         var topicDisabled = false;
-        for(var i in topics){
-            app.settings.bqClient.postMessage(topics[i],message,function(err,data){
+        var functions = [];
+        topics.forEach(function(topic) {
+          functions.push(function (cb) {
+            app.settings.bqClient.postMessage(topic,message,function(err,data){
                if(err){
                     limitRate = limitRate || err.limit_rate;
                     topicDisabled = topicDisabled || err.topic_disabled;
-                    errors.push(err.msg)
+                    errors.push(err.msg);
                 }
-                if(data){
-                    datas.push(data)
-                }
-                executed++
-                if(executed == topics.length){
-                    if(errors.length>0){
-                        log.log("error","[ERROR-POSTING] Error posx ting "+ JSON.stringify(errors))
-                        var code = 500;
-                        if(topicDisabled) {
-                          code = 412;
-                        }
-                        if(limitRate) {
-                          code = 429;
-                        }
-                        return res.status(code).json( {err:"An error ocurrs posting the messages","errors":errors})
-                    }else{
-                        return res.status(201).json( datas)
-                    }
-                }
-            })
-        }
-        var start = new Date()
-        pulsar.publish(app.settings.cluster, msgCopy, function(err) {
-          try {
-            if (err) {
-              statsDClient.increment("application.bigqueue.pulsar.publish.error",1, ["cluster:"+app.settings.cluster]);
+                cb(null, data);
+              });
+          });
+        });
+        functions.push(function (cb) {
+          var start = new Date()
+          pulsar.publish(app.settings.cluster, msgCopy, function(err) {
+            try {
+              if (err) {
+                errors.push(err.toString());
+                statsDClient.increment("application.bigqueue.pulsar.publish.error",1, ["cluster:"+app.settings.cluster]);
+              }
+              statsDClient.gauge("application.bigqueue.pulsar.publish.time", (new Date() - start), ["cluster:"+app.settings.cluster, "error:"+(!!err)]);
+            } catch (e) {
+              log.log("error", "Error recording metrics", e);
             }
-            statsDClient.gauge("application.bigqueue.pulsar.publish.time", (new Date() - start), ["cluster:"+app.settings.cluster, "error:"+(!!err)]);
-          } catch (e) {
-            log.log("error", "Error recording metrics", e);
+            cb();
+          });
+        });
+        async.parallel(functions, function(err, results) {
+          if(errors.length>0){
+              log.log("error","[ERROR-POSTING] Error posx ting "+ JSON.stringify(errors))
+              var code = 500;
+              if(topicDisabled) {
+                code = 412;
+              }
+              if(limitRate) {
+                code = 429;
+              }
+              return res.status(code).json( {err:"An error ocurrs posting the messages","errors":errors})
+          } else {
+              return res.status(201).json(results.filter(function(e) { return e; }))
           }
         });
     })
