@@ -74,14 +74,8 @@ var loadApp = function(app){
         functions.push(function (cb) {
           var start = new Date()
           pulsar.publish(app.settings.cluster, msgCopy, function(err) {
-            try {
-              if (err) {
-                errors.push(err.toString());
-                statsDClient.increment("application.bigqueue.pulsar.publish.error",1, ["cluster:"+app.settings.cluster]);
-              }
-              statsDClient.gauge("application.bigqueue.pulsar.publish.time", (new Date() - start), ["cluster:"+app.settings.cluster, "error:"+(!!err)]);
-            } catch (e) {
-              log.log("error", "Error recording metrics", e);
+            if (err) {
+              errors.push(err.toString());
             }
             cb();
           });
