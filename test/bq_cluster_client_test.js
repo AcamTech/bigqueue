@@ -171,6 +171,14 @@ describe("Big Queue Cluster",function(){
     });
     //End of prepare stage
     describe("#internals",function(){
+      it("Should have the topic struct after ready", function(done) {
+        var bqClient = bqc.createClusterClient(bqClientConfig);
+        bqClient.on("ready",function() {
+          Object.keys(bqClient.clusterTopics).length.should.equal(3);
+          bqClient.shutdown();
+          done();
+        });
+      });
       it("Should not create client if node is down", function(done) {
         async.series([
           function(cb) {
