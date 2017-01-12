@@ -51,28 +51,28 @@ describe("Big Queue Cluster",function(){
           {
             topic_id: "123-a-b",
             enabled: true,
-            max_new_messages_per_seccond:-1,
+            max_new_messages_per_second:-1,
             consumers: [{
               consumer_id: "456-c-d",
-              max_get_messages_per_seccond: -1,
+              max_get_messages_per_second: -1,
               enabled: true
             }]
           },{
             topic_id: "JJJ-a-b",
             enabled: true,
-            max_new_messages_per_seccond: -1,
+            max_new_messages_per_second: -1,
             consumers: [{
               consumer_id: "JJJ-c-d",
-              max_get_messages_per_seccond: -1,
+              max_get_messages_per_second: -1,
               enabled: true
             }]
           },{
             topic_id:"testTopic",
             enabled: true,
-            max_new_messages_per_seccond: -1,
+            max_new_messages_per_second: -1,
             consumers:[{
                 consumer_id:"testGroup",
-                max_get_messages_per_seccond: -1,
+                max_get_messages_per_second: -1,
                 enabled: true
             }]
           }
@@ -348,8 +348,8 @@ describe("Big Queue Cluster",function(){
               cb();
             });
           },function(cb) {
-            topicsStruct.topics[0].max_new_messages_per_seccond=2;
-            topicsStruct.topics[1].max_new_messages_per_seccond=2;
+            topicsStruct.topics[0].max_new_messages_per_second=2;
+            topicsStruct.topics[1].max_new_messages_per_second=2;
             //Clear stats
             setTimeout(cb, 1100);
           },function(cb) {
@@ -602,7 +602,7 @@ describe("Big Queue Cluster",function(){
               });
             },
             function(cb) {
-              topicsStruct.topics[2].consumers[0].max_get_messages_per_seccond = 1;
+              topicsStruct.topics[2].consumers[0].max_get_messages_per_second = 1;
               setTimeout(cb, 1500);
             },
             function(cb) {

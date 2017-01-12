@@ -420,6 +420,7 @@ describe("Clusters administration for multicluster purposes",function(){
             admClient.createConsumerGroup({name:"test-consumer",tenant_id:"tenant_test",tenant_name:"tenant_name",topic_id:"1234-456-test"},function(err){
               mysqlConn.query("SELECT * FROM consumers", function(err, data) {
                 data[0].consumer_id.should.equal("tenant_test-tenant_name-test-consumer");
+                data[0].consumer_type.should.equal("native");
                 data[0].consumer_name.should.equal("test-consumer");
                 data[0].tenant_id.should.equal("tenant_test");
                 data[0].tenant_name.should.equal("tenant_name");

@@ -17,10 +17,11 @@ CREATE TABLE `consumers` (
   `tenant_id` varchar(255) DEFAULT NULL,
   `tenant_name` varchar(255) DEFAULT NULL,
   `consumer_name` varchar(255) DEFAULT NULL,
+  `consumer_type` varchar(255) DEFAULT 'native',
   `cluster` varchar(50) NOT NULL,
   `enabled` int(1) DEFAULT 1,
   `topic_id` varchar(255) NOT NULL,
-  `max_get_messages_per_seccond` int(11) DEFAULT -1,
+  `max_get_messages_per_second` int(11) DEFAULT -1,
   `create_time` datetime,
   PRIMARY KEY (`consumer_id`, `cluster`, `topic_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -96,7 +97,7 @@ CREATE TABLE `stats` (
   `last_update` datetime NOT NULL,
   PRIMARY KEY (`cluster`,`node`,`topic`,`consumer`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-ALTER TABLE `bigqueue`.`stats` 
+ALTER TABLE `bigqueue`.`stats`
 ADD INDEX `IDX_STATS_BY_CONSUMER` (`consumer` ASC) ;
 
 DROP TABLE IF EXISTS `tasks`;
@@ -112,7 +113,7 @@ CREATE TABLE `tasks` (
   PRIMARY KEY (`task_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-ALTER TABLE `bigqueue`.`tasks` 
+ALTER TABLE `bigqueue`.`tasks`
 ADD INDEX `tasks_host_status_idx` (`data_node_id` ASC, `task_status` ASC) ;
 
 
@@ -125,7 +126,7 @@ CREATE TABLE `topics` (
   `cluster` varchar(50) DEFAULT NULL,
   `ttl` int(11) DEFAULT NULL,
   `enabled` int(1) DEFAULT 1,
-  `max_new_messages_per_seccond` int(11) DEFAULT -1,
+  `max_new_messages_per_second` int(11) DEFAULT -1,
   `create_time` datetime,
   PRIMARY KEY (`topic_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -147,22 +148,22 @@ CREATE TABLE `topics_history` (
 -- Triggers
 
 DROP TRIGGER IF EXISTS data_nodes_delete;
-CREATE TRIGGER data_nodes_delete AFTER DELETE ON data_nodes 
-FOR EACH ROW INSERT INTO data_nodes_history (id, host, port, status, type, options, cluster, modify_date, modify_action) 
+CREATE TRIGGER data_nodes_delete AFTER DELETE ON data_nodes
+FOR EACH ROW INSERT INTO data_nodes_history (id, host, port, status, type, options, cluster, modify_date, modify_action)
 VALUES(OLD.id, OLD.host, OLD.port, OLD.status, OLD.type, OLD.options,  OLD.cluster, now(), "DELETE");
 
 DROP TRIGGER IF EXISTS data_nodes_update;
 CREATE TRIGGER data_nodes_udate AFTER UPDATE ON data_nodes
-FOR EACH ROW INSERT INTO data_nodes_history (id, host, port, status, type, options, cluster, modify_date, modify_action) 
+FOR EACH ROW INSERT INTO data_nodes_history (id, host, port, status, type, options, cluster, modify_date, modify_action)
 VALUES(OLD.id, OLD.host, OLD.port, OLD.status, OLD.type, OLD.options, OLD.cluster, now(), "UPDATE");
 
 DROP TRIGGER IF EXISTS topics_delete;
-CREATE TRIGGER topics_delete AFTER DELETE ON topics 
+CREATE TRIGGER topics_delete AFTER DELETE ON topics
 FOR EACH ROW INSERT INTO topics_history (topic_id, tenant_id, tenant_name, topic_name, cluster, ttl, create_time, modify_date, modify_action)
 VALUES(OLD.topic_id, OLD.tenant_id, OLD.tenant_name, OLD.topic_name, OLD.cluster, OLD.ttl, OLD.create_time, now(), "DELETE");
 
 DROP TRIGGER IF EXISTS topics_update;
-CREATE TRIGGER topics_update AFTER UPDATE ON topics 
+CREATE TRIGGER topics_update AFTER UPDATE ON topics
 FOR EACH ROW INSERT INTO topics_history (topic_id, tenant_id, tenant_name, topic_name, cluster, ttl, create_time, modify_date, modify_action)
 VALUES(OLD.topic_id, OLD.tenant_id, OLD.tenant_name, OLD.topic_name, OLD.cluster, OLD.ttl, OLD.create_time, now(), "UPDATE");
 
@@ -175,4 +176,3 @@ DROP TRIGGER IF EXISTS consumers_update;
 CREATE TRIGGER consumers_update AFTER UPDATE ON consumers
 FOR EACH ROW INSERT INTO consumers_history (consumer_id, tenant_id, tenant_name, consumer_name, cluster, topic_id, create_time, modify_date, modify_action)
 VALUES (OLD.consumer_id, OLD.tenant_id, OLD.tenant_name, OLD.consumer_name, OLD.cluster, OLD.topic_id, OLD.create_time, now(), "UPDATE");
-
