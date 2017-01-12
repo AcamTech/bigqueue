@@ -11,7 +11,7 @@ var express = require('express'),
                                             "statsd_port": 8125,
                                              "fury_dumper":true
                                            });
-
+var cache = {};
 
 var loadApp = function(app){
     var authorizeTenant = function(userData,tenantId){
@@ -208,11 +208,18 @@ var loadApp = function(app){
     })
 
     app.get(app.settings.basePath+"/clusters/:cluster/topics",function(req,res){
+      if(!cache["clusterStruct"]){
+        cache["clusterStruct"] = {}
+      }
+      if(cache["clusterStruct"][req.params.cluster]) {
+        return res.writePretty(cache["clusterStruct"][req.params.cluster],200)
+      }
       app.settings.bqAdm.getClusterStruct(req.params.cluster,function(err, data) {
         if(err){
             var errMsg = err.msg || ""+err
             return res.writePretty({"err":errMsg}, 500)
         }
+        cache["clusterStruct"][req.params.cluster] = {"topics":data};
         return res.writePretty({"topics":data},200)
       })
     });
@@ -551,6 +558,9 @@ exports.startup = function(config){
     app.running = true;
     this.socket = app.listen(config.port)
     this.app = app
+    this.clearCacheInterval = setInterval(function() {
+      cache = {}
+    }, config.cacheTime || 1);
     return this
 }
 
