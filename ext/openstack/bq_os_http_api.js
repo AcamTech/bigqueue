@@ -103,6 +103,23 @@ var loadApp = function(app){
         var consumer = req.params.consumer
         var nodeId = req.headers["x-nodeid"]
         var nodeCallCount = 0;
+        var consumerType = app.settings.bqClient.getConsumerType(topic, consumer);
+        if (consumerType == "pulsar") {
+          return pulsar.getMessage(app.settings.cluster, topic, consumer, function(err, status, body) {
+            if (err) {
+                if(typeof(err) == "string") {
+                    return res.status(500).json({"err":""+err});
+                }
+                return res.status(500).json(err);
+            }
+
+            if (status == 204) {
+                return res.status(204).json({});
+            }
+            return res.status(status).json(body);
+          });
+        }
+
         if(nodeId) {
           var splitedNode = nodeId.split("@");
           if(splitedNode.length != 2) {
@@ -172,9 +189,26 @@ var loadApp = function(app){
     })
 
     app.delete(app.settings.basePath+"/topics/:topic/consumers/:consumerName/messages/:recipientCallback",function(req,res){
+        var topic = req.params.topic
+        var consumer = req.params.consumerName
+        var consumerType = app.settings.bqClient.getConsumerType(topic, consumer);
+        if (consumerType == "pulsar") {
+          return pulsar.ackMessage(app.settings.cluster, topic, consumer, req.params.recipientCallback, function(err, status, body) {
+            if (err) {
+                if(typeof(err) == "string") {
+                    return res.status(500).json({"err":""+err});
+                }
+                return res.status(500).json(err);
+            }
+
+            if (status == 204) {
+                return res.status(204).json({});
+            }
+            return res.status(status).json(body);
+          });
+        }
+
         try{
-            var topic = req.params.topic
-            var consumer = req.params.consumerName
             app.settings.bqClient.ackMessage(topic,consumer,req.params.recipientCallback,function(err){
                 if(err){
                     var errMsg = err.msg || ""+err

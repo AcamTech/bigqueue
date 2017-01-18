@@ -1,6 +1,7 @@
 var express = require('express'),
     log = require('../../lib/bq_logger.js'),
     bqAdm = require('../../lib/bq_clusters_adm.js'),
+    pulsar = require('../../lib/pulsar.js'),
     keystoneMiddlware = require("../../ext/openstack/keystone_middleware.js"),
     bodyParser = require("body-parser"),
     NodeCache = require("node-cache"),
@@ -406,6 +407,19 @@ var loadApp = function(app){
                return res.writePretty({"err":"Consumer not found or you are not authorized to delete with this token"}, 404)
             }
 
+            if (data[0].consumer_type == 'pulsar') {
+              return pulsar.resetConsumer(req.params.topic_id, req.params.consumer_id, function(err, status, body) {
+                if(err){
+                  var errMsg = err.msg || ""+err
+                  return res.writePretty({"err":errMsg}, 500)
+                }
+                if (status == 204) {
+                  return res.writePretty(undefined,204)
+                }
+                return res.writePretty(body,status)
+              });
+            }
+
             app.settings.bqAdm.resetConsumer(req.params.topic_id,req.params.consumer_id,function(err,data){
                 if(err){
                   var errMsg = err.msg || ""+err
@@ -428,6 +442,16 @@ var loadApp = function(app){
               }
               return res.writePretty({"err":errMsg},code)
             }
+            if (data.consumer_type == 'pulsar') {
+              return pulsar.getConsumer(topic, consumer, function(err, status, body) {
+                if (err) {
+                  var errMsg = err.msg || err.toString();
+                  return res.writePretty({"err":errMsg},code);
+                }
+                return res.writePretty(body, status);
+              })
+            }
+
             return res.writePretty(data,200)
         })
     })
