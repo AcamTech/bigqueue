@@ -285,12 +285,37 @@ var loadApp = function(app){
         topic_data["ttl"] = ttl;
         topic_data["tenant_id"] = getTenantId(req);
         topic_data["tenant_name"] = getTenantName(req);
-        app.settings.bqAdm.createTopic(topic_data, function(err, topicData){
-            if(err){
-              var errMsg = err.msg || ""+err
-              return res.writePretty({"err":errMsg}, 500)
-            }else{
-              return res.writePretty(topicData,201)
+
+        var functions = [];
+        var errors = [];
+
+        functions.push(function (cb) {
+            app.settings.bqAdm.createTopic(topic_data, function(err, topicData){
+                if(err){
+                    var errMsg = err.msg || ""+err
+                    errors.push({"bigq": errMsg});
+                    //return res.writePretty({"err":errMsg}, 500)
+                }
+                cb(null, topicData);
+                //return res.writePretty(topicData,201)
+            });
+            
+        });
+
+        functions.push(function(cb) {
+            pulsar.createTopic(topic_data["tenant_id"] + "-" + req.body.name, app.settings.cluster, function(err){
+                if (err) {
+                    errors.push({"pulsar": err.toString()});
+                }
+                cb();
+            });
+        });
+
+        async.parallel(functions, function(err, results) {
+            if(errors.length>0){
+                return res.writePretty({"err": errors}, 500);
+            } else {
+                return res.writePretty(results[0],201);
             }
         });
     });
@@ -361,14 +386,43 @@ var loadApp = function(app){
         consumer_data["tenant_id"] = getTenantId(req);
         consumer_data["tenant_name"] = getTenantName(req);
         consumer_data["topic_id"] = req.params.topicId;
-        app.settings.bqAdm.createConsumerGroup(consumer_data, function(err, consumerData){
+        
+
+        var functions = [];
+        var errors = [];
+        var code = 500;
+
+        functions.push(function (cb) {
+            app.settings.bqAdm.createConsumerGroup(consumer_data, function(err, consumerData){
                 if(err){
-                  var errMsg = err.msg || ""+err
-                  return res.writePretty({"err":errMsg},err.code || 500)
-            }else{
-              return res.writePretty(consumerData,201)
+                    var errMsg = err.msg || ""+err
+                    code = err.code || 500;
+                    errors.push({"bigq": errMsg});
+                    //return res.writePretty({"err":errMsg}, err.code || 500)
+                }/*else{
+                    return res.writePretty(consumerData,201)
+                }*/
+                cb(null, consumerData);
+            });
+            
+        });
+
+        functions.push(function(cb) {
+            pulsar.createConsumer(topic_data["tenant_id"] + "-" + req.body.name, app.settings.cluster, function(err){
+                if (err) {
+                    errors.push({"pulsar": err.toString()});
                 }
-        })
+                cb();
+            });
+        });
+
+        async.parallel(functions, function(err, results) {
+            if(errors.length>0){
+                return res.writePretty({"err": errors}, code);
+            } else {
+                return res.writePretty(results[0], 201);
+            }
+        });
 
     })
 
