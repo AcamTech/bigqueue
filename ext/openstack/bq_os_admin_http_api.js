@@ -14,6 +14,8 @@ var express = require('express'),
                                            });
 var cache = {};
 
+var pulsarFullyMigratedCluster = ["notifications"];
+
 var loadApp = function(app){
     var authorizeTenant = function(userData,tenantId){
     var authorized = false
@@ -299,11 +301,10 @@ var loadApp = function(app){
                 cb(null, topicData);
                 //return res.writePretty(topicData,201)
             });
-            
         });
 
         functions.push(function(cb) {
-            pulsar.createTopic(topic_data["tenant_id"] + "-" + req.body.name, app.settings.cluster, function(err){
+            pulsar.createTopic(topic_data["tenant_id"] + "-" + topic_data["tenant_name"] + "-" + req.body.name, req.body.cluster || "default2", function(err){
                 if (err) {
                     errors.push({"pulsar": err.toString()});
                 }
@@ -315,7 +316,7 @@ var loadApp = function(app){
             if(errors.length>0){
                 return res.writePretty({"err": errors}, 500);
             } else {
-                return res.writePretty(results[0],201);
+                return res.writePretty(results[0], 201);
             }
         });
     });
@@ -336,7 +337,6 @@ var loadApp = function(app){
                   return res.writePretty({"err":errMsg},err.code || 500)
                 }
                 return res.writePretty(undefined,204)
-
             })
         })
     })
@@ -344,6 +344,16 @@ var loadApp = function(app){
     app.get(app.settings.basePath+"/topics/:topicId",function(req,res){
         var topic = req.params.topicId;
           app.settings.bqAdm.getTopicData(topic,function(err,data){
+              if(pulsarFullyMigratedCluster.indexOf(data.cluster) > -1){
+                  pulsar.getTopic(topic, function(err, data){
+                        if(err){
+                            var errMsg = err.msg || ""+err
+                            return res.writePretty({"err":errMsg},err.code || 500)
+                        }
+                        return res.writePretty(data,200);
+                  });
+                  return;
+              }
               if(err){
                 var errMsg = err.msg || ""+err
                 return res.writePretty({"err":errMsg},err.code || 500)
@@ -397,7 +407,7 @@ var loadApp = function(app){
                 if(err){
                     var errMsg = err.msg || ""+err
                     code = err.code || 500;
-                    errors.push({"bigq": errMsg});
+                    cb(errMsg);
                     //return res.writePretty({"err":errMsg}, err.code || 500)
                 }/*else{
                     return res.writePretty(consumerData,201)
@@ -407,20 +417,23 @@ var loadApp = function(app){
             
         });
 
-        functions.push(function(cb) {
-            pulsar.createConsumer(topic_data["tenant_id"] + "-" + req.body.name, app.settings.cluster, function(err){
+        functions.push(function(err, consumerData) {
+            if(err){
+                cb(err);
+            }
+            pulsar.createConsumer(consumerData.topic_id, consumerData.consumer_id, consumerData.cluster, function(err){
                 if (err) {
-                    errors.push({"pulsar": err.toString()});
+                    cb(err);
                 }
-                cb();
+                cb(null, consumerData);
             });
         });
 
-        async.parallel(functions, function(err, results) {
-            if(errors.length>0){
-                return res.writePretty({"err": errors}, code);
+        async.series(functions, function(err, results) {
+            if(error && error != ""){
+                return res.writePretty({"err": error}, code);
             } else {
-                return res.writePretty(results[0], 201);
+                return res.writePretty(results, 201);
             }
         });
 
