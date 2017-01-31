@@ -398,7 +398,6 @@ var loadApp = function(app){
         
 
         var functions = [];
-        var errors = [];
         var code = 500;
 
         functions.push(function (cb) {
