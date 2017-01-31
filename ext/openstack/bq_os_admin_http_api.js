@@ -347,8 +347,7 @@ var loadApp = function(app){
               if(pulsarFullyMigratedCluster.indexOf(data.cluster) > -1){
                   pulsar.getTopic(topic, function(err, data){
                         if(err){
-                            var errMsg = err.msg || ""+err
-                            return res.writePretty({"err":errMsg},err.code || 500)
+                            return res.writePretty({"err": err}, 500)
                         }
                         return res.writePretty(data,200);
                   });
