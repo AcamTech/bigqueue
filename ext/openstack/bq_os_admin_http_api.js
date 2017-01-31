@@ -429,8 +429,8 @@ var loadApp = function(app){
         });
 
         async.series(functions, function(err, results) {
-            if(error && error != ""){
-                return res.writePretty({"err": error}, code);
+            if(err && err != ""){
+                return res.writePretty({"err": err}, code);
             } else {
                 return res.writePretty(results, 201);
             }
