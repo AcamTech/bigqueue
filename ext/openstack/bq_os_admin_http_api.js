@@ -400,7 +400,7 @@ var loadApp = function(app){
         consumer_data["tenant_id"] = getTenantId(req);
         consumer_data["tenant_name"] = getTenantName(req);
         consumer_data["topic_id"] = req.params.topicId;
-        
+
 
         var functions = [];
         var code = 500;
@@ -417,13 +417,10 @@ var loadApp = function(app){
                 }*/
                 cb(null, consumerData);
             });
-            
+
         });
 
-        functions.push(function(err, consumerData) {
-            if(err){
-                cb(err);
-            }
+        functions.push(function(consumerData, cb) {
             pulsar.createConsumer(consumerData.topic_id, consumerData.consumer_id, consumerData.cluster, function(err, status, body){
                 if (err || status >= 300) {
                     cb(err || body);
@@ -432,7 +429,7 @@ var loadApp = function(app){
             });
         });
 
-        async.series(functions, function(err, results) {
+        async.waterfall(functions, function(err, results) {
             if(err && err != ""){
                 return res.writePretty({"err": err}, code);
             } else {
