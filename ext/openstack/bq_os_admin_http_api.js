@@ -307,8 +307,8 @@ var loadApp = function(app){
 
         functions.push(function(cb) {
             pulsar.createTopic(topic_data["tenant_id"] + "-" + topic_data["tenant_name"] + "-" + req.body.name, req.body.cluster || "default2", function(err, status, data){
-                if(status == 500){
-                    errors.push("internal server error");
+                if(status >= 300){
+                    errors.push(data);
                 }
                 if (err) {
                     errors.push(err);
@@ -354,7 +354,7 @@ var loadApp = function(app){
                         if(err){
                             return res.writePretty({"err": err}, status)
                         }
-                        return res.writePretty(data,200);
+                        return res.writePretty(data, status);
                   });
                   return;
               }
@@ -424,9 +424,9 @@ var loadApp = function(app){
             if(err){
                 cb(err);
             }
-            pulsar.createConsumer(consumerData.topic_id, consumerData.consumer_id, consumerData.cluster, function(err){
-                if (err) {
-                    cb(err);
+            pulsar.createConsumer(consumerData.topic_id, consumerData.consumer_id, consumerData.cluster, function(err, status, body){
+                if (err || status >= 300) {
+                    cb(err || body);
                 }
                 cb(null, consumerData);
             });
