@@ -290,23 +290,28 @@ var loadApp = function(app){
 
         var functions = [];
         var errors = [];
+        var results;
 
         functions.push(function (cb) {
             app.settings.bqAdm.createTopic(topic_data, function(err, topicData){
                 if(err){
                     var errMsg = err.msg || ""+err
-                    errors.push({"bigq": errMsg});
+                    errors.push(errMsg);
                     //return res.writePretty({"err":errMsg}, 500)
                 }
-                cb(null, topicData);
+                results = topicData;
+                cb();
                 //return res.writePretty(topicData,201)
             });
         });
 
         functions.push(function(cb) {
-            pulsar.createTopic(topic_data["tenant_id"] + "-" + topic_data["tenant_name"] + "-" + req.body.name, req.body.cluster || "default2", function(err){
+            pulsar.createTopic(topic_data["tenant_id"] + "-" + topic_data["tenant_name"] + "-" + req.body.name, req.body.cluster || "default2", function(err, status, data){
+                if(status == 500){
+                    errors.push("internal server error");
+                }
                 if (err) {
-                    errors.push({"pulsar": err.toString()});
+                    errors.push(err);
                 }
                 cb();
             });
@@ -316,7 +321,7 @@ var loadApp = function(app){
             if(errors.length>0){
                 return res.writePretty({"err": errors}, 500);
             } else {
-                return res.writePretty(results[0], 201);
+                return res.writePretty(results, 201);
             }
         });
     });
@@ -345,9 +350,9 @@ var loadApp = function(app){
         var topic = req.params.topicId;
           app.settings.bqAdm.getTopicData(topic,function(err,data){
               if(pulsarFullyMigratedCluster.indexOf(data.cluster) > -1){
-                  pulsar.getTopic(topic, function(err, data){
+                  pulsar.getTopic(topic, function(err, status, data){
                         if(err){
-                            return res.writePretty({"err": err}, 500)
+                            return res.writePretty({"err": err}, status)
                         }
                         return res.writePretty(data,200);
                   });
