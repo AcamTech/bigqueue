@@ -429,11 +429,11 @@ var loadApp = function(app){
             });
         });
 
-        async.waterfall(functions, function(err, results) {
+        async.waterfall(functions, function(err, result) {
             if(err && err != ""){
                 return res.writePretty({"err": err}, code);
             } else {
-                return res.writePretty(results[0], 201);
+                return res.writePretty(result, 201);
             }
         });
 
