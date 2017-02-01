@@ -290,7 +290,7 @@ var loadApp = function(app){
 
         var functions = [];
         var errors = [];
-        var results;
+        var result;
 
         functions.push(function (cb) {
             app.settings.bqAdm.createTopic(topic_data, function(err, topicData){
@@ -299,7 +299,7 @@ var loadApp = function(app){
                     errors.push(errMsg);
                     //return res.writePretty({"err":errMsg}, 500)
                 }
-                results = topicData;
+                result = topicData;
                 cb();
                 //return res.writePretty(topicData,201)
             });
@@ -317,11 +317,11 @@ var loadApp = function(app){
             });
         });
 
-        async.parallel(functions, function(err, results) {
+        async.parallel(functions, function(err) {
             if(errors.length>0){
                 return res.writePretty({"err": errors}, 500);
             } else {
-                return res.writePretty(results, 201);
+                return res.writePretty(result, 201);
             }
         });
     });
@@ -433,7 +433,7 @@ var loadApp = function(app){
             if(err && err != ""){
                 return res.writePretty({"err": err}, code);
             } else {
-                return res.writePretty(results, 201);
+                return res.writePretty(results[0], 201);
             }
         });
 
