@@ -14,8 +14,6 @@ var express = require('express'),
                                            });
 var cache = {};
 
-var pulsarFullyMigratedCluster = ["notifications"];
-
 var loadApp = function(app){
     var authorizeTenant = function(userData,tenantId){
     var authorized = false
@@ -349,7 +347,7 @@ var loadApp = function(app){
     app.get(app.settings.basePath+"/topics/:topicId",function(req,res){
         var topic = req.params.topicId;
           app.settings.bqAdm.getTopicData(topic,function(err,data){
-              if(pulsarFullyMigratedCluster.indexOf(data.cluster) > -1){
+              if(pulsar.FULLY_MIGRATED_CLUSTERS.indexOf(data.cluster) > -1){
                   pulsar.getTopic(topic, function(err, status, data){
                         if(err){
                             return res.writePretty({"err": err}, status)
