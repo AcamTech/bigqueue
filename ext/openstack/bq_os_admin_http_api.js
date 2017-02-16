@@ -450,13 +450,38 @@ var loadApp = function(app){
                return res.writePretty({"err":"Consumer not found or you are not authorized to delete with this token"}, 404)
             }
 
-            app.settings.bqAdm.deleteConsumerGroup(req.params.topic_id,req.params.consumer_id,function(err,data){
-                if(err){
-                  var errMsg = err.msg || ""+err
-                  return res.writePretty({"err":errMsg},err.code || 500)
+            var code;
+
+            var functions = [
+                function(cb) {
+                    app.settings.bqAdm.deleteConsumerGroup(req.params.topic_id,req.params.consumer_id,function(err,data){
+                        if(err){
+                            var errMsg = err.msg || ""+err
+                            code = err.code || 500;
+                            return cb(errMsg);
+                        }
+                        return cb();
+                    })
+                },
+                function(cb) {
+                    pulsar.destroyConsumer(req.params.topic_id, req.params.consumer_id, function (err, status, body) {
+                        if (err || status >= 300) {
+                            code = status;
+                            return cb(err || body);
+                        }
+                        return cb();
+                    });
                 }
-                return res.writePretty(undefined,204)
-            })
+            ];
+
+
+            async.parallel(functions, function(err) {
+                if(err){
+                    return res.writePretty({"err": err}, code);
+                } else {
+                    return res.writePretty(undefined, 204);
+                }
+            });
         })
     })
 
