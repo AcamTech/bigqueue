@@ -1119,20 +1119,23 @@ describe("openstack admin http api",function(){
             request({
                 url:"http://127.0.0.1:8081/clusters",
                 method:"POST",
-                json:{"name":"test"}
+                body:{"name":"test"},
+                json: true
             },function(error,response,body){
                 response.statusCode.should.equal(401)
                 request({
                     url:"http://127.0.0.1:8081/clusters",
                     method:"POST",
-                    json:{"name":"test"},
+                    body:{"name":"test"},
+                    json: true,
                     headers:{"X-Auth-Token":"123"}
                 },function(error,response,body){
                     response.statusCode.should.equal(401)
                     request({
                         url:"http://127.0.0.1:8081/clusters",
                         method:"POST",
-                        json:{"name":"test"},
+                        body:{"name":"test"},
+                        json: true,
                         headers:{"X-Auth-Token":"user123"}
                     },function(error,response,body){
                         response.statusCode.should.equal(201)
@@ -1149,7 +1152,8 @@ describe("openstack admin http api",function(){
             request({
                 url:"http://127.0.0.1:8081/clusters",
                 method:"POST",
-                json:{"name":"test",
+                json: true,
+                body:{"name":"test",
                       "nodes":[{
                           "id":"redis1",
                             "host":"127.0.0.1",
@@ -1171,7 +1175,8 @@ describe("openstack admin http api",function(){
                 request({
                     url:"http://127.0.0.1:8081/topics",
                     method:"POST",
-                  json:{"name":"test"}
+                    json: true,
+                  body:{"name":"test"}
                 },function(error,response,body){
                     response.statusCode.should.equal(401)
                   cb();
@@ -1181,7 +1186,8 @@ describe("openstack admin http api",function(){
                     request({
                         url:"http://127.0.0.1:8081/topics",
                         method:"POST",
-                  json:{"name":"test"},
+                  body:{"name":"test"},
+                  json:true,
                   headers:{"X-Auth-Token":"lala"}
                     },function(error,response,body){
                   response.statusCode.should.equal(401);
@@ -1192,7 +1198,8 @@ describe("openstack admin http api",function(){
                         request({
                             url:"http://127.0.0.1:8081/topics",
                             method:"POST",
-                  json:{"name":"test"},
+                            json:true,
+                  body:{"name":"test"},
                             headers:{"X-Auth-Token":"user123"}
                         },function(error,response,body){
                             response.statusCode.should.equal(201)
@@ -1207,7 +1214,8 @@ describe("openstack admin http api",function(){
             request({
                 url:"http://127.0.0.1:8081/clusters",
                 method:"POST",
-                json:{"name":"test",
+                json: true,
+                body:{"name":"test",
                       "nodes":[{
                           "id":"redis1",
                             "host":"127.0.0.1",
@@ -1229,7 +1237,8 @@ describe("openstack admin http api",function(){
                 request({
                     url:"http://127.0.0.1:8081/topics",
                     method:"POST",
-                  json:{"name":"test"},
+                    json:true,
+                  body:{"name":"test"},
                   headers:{"X-Auth-Token":"user123"}
                 },function(error,response,body){
                     response.statusCode.should.equal(201)
@@ -1241,7 +1250,8 @@ describe("openstack admin http api",function(){
                     request({
                   url:"http://127.0.0.1:8081/topics",
                         method:"POST",
-                  json:{"name":"test", topic_id:"1-1234-test"},
+                        json:true,
+                  body:{"name":"test", topic_id:"1-1234-test"},
                     },function(error,response,body){
                         response.statusCode.should.equal(401)
                 cb();
@@ -1251,7 +1261,8 @@ describe("openstack admin http api",function(){
                         request({
                   url:"http://127.0.0.1:8081/topics/1-1234-test/consumers",
                             method:"POST",
-                  json:{"name":"test"},
+                  body:{"name":"test"},
+                  json:true,
                   headers:{"X-Auth-Token":"sometoken"}
                         },function(error,response,body){
                             response.statusCode.should.equal(401)
@@ -1262,7 +1273,8 @@ describe("openstack admin http api",function(){
            request({
                   url:"http://127.0.0.1:8081/topics/1-1234-test/consumers",
                 method:"POST",
-                  json:{"name":"test-consumer", topic_id:"1-1234-test"},
+                  body:{"name":"test-consumer", topic_id:"1-1234-test"},
+                  json:true,
                 headers:{"X-Auth-Token":"user123"}
             },function(error,response,body){
                             response.statusCode.should.equal(201)
@@ -1282,7 +1294,8 @@ describe("openstack admin http api",function(){
             request({
                 url:"http://127.0.0.1:8081/clusters",
                 method:"POST",
-                json:{"name":"test",
+                json: true,
+                body:{"name":"test",
                       "nodes":[{
                           "id":"redis1",
                             "host":"127.0.0.1",
@@ -1304,7 +1317,8 @@ describe("openstack admin http api",function(){
                request({
                     url:"http://127.0.0.1:8081/topics",
                     method:"POST",
-                  json:{"name":"test"},
+                    json: true,
+                    body:{"name":"test"},
                         headers:{"X-Auth-Token":"user123"}
                     },function(error,response,body){
                         response.statusCode.should.equal(201)
@@ -1359,7 +1373,8 @@ describe("openstack admin http api",function(){
            request({
                 url:"http://127.0.0.1:8081/clusters",
                 method:"POST",
-                json:{"name":"test",
+                json: true,
+                body:{"name":"test",
                       "nodes":[{
                           "id":"redis1",
                             "host":"127.0.0.1",
@@ -1381,7 +1396,8 @@ describe("openstack admin http api",function(){
                 request({
                     url:"http://127.0.0.1:8081/topics",
                     method:"POST",
-                  json:{"name":"test"},
+                  json: true,
+                  body:{"name":"test"},
                     headers:{"X-Auth-Token":"user123"}
                 },function(error,response,body){
                     response.statusCode.should.equal(201)
@@ -1393,7 +1409,8 @@ describe("openstack admin http api",function(){
               request({
                   url:"http://127.0.0.1:8081/topics/1-1234-test/consumers",
                   method:"POST",
-                  json:{"name":"test_consumer"},
+                  json: true,
+                  body:{"name":"test_consumer"},
                   headers:{"X-Auth-Token":"user345"}
               },function(error,response,body){
                 response.statusCode.should.equal(201)
