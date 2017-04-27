@@ -420,7 +420,7 @@ var loadApp = function(app){
         });
 
         functions.push(function(consumerData, cb) {
-            pulsar.createConsumer(consumerData.topic_id, consumerData.consumer_id, consumerData.cluster, function(err, status, body){
+            pulsar.createConsumer(consumerData.topic_id, consumerData.consumer_id, consumerData.cluster, req.body.type, function(err, status, body){
                 if (err || status >= 300) {
                     cb(err || body);
                 }
